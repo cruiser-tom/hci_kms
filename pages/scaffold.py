@@ -119,7 +119,6 @@ if st.button("✅ I found the answer!"):
     
     try:
         response = supabase.table("HCI").insert(data_to_insert).execute()
-        st.balloons()
         st.success(f"Task complete! Time: {total_time}s | Iterations: {st.session_state.iteration_count}")
         st.write("Data securely logged. Please proceed to the post-task survey.")
         time.sleep(2)
