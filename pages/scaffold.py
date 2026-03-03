@@ -2,6 +2,10 @@ import streamlit as st
 import time
 from supabase import create_client, Client
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
+
+
+st.set_page_config(page_title="Frame KMS | Structured Query", layout="centered")
 
 # --- Initialize Gemini ---
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -16,6 +20,8 @@ supabase = init_connection()
 # Safety Check: If a student tries to go directly to this URL without app.py
 if 'start_time' not in st.session_state:
     st.session_state.start_time = time.time()
+if 'iteration_count' not in st.session_state:
+    st.session_state.iteration_count = 0
 
 
 # The "Database" the AI will use to answer questions
@@ -59,7 +65,8 @@ Format outputs exactly as the user requests (e.g., short summary, bullet points,
 If a user asks for data outside of this context, politely inform them that the data is not available in the current Knowledge Base.
 """
 
-from google.api_core.exceptions import ResourceExhausted
+st.title("Frame Corporate Intelligence")
+st.divider()
 
 def scaffolded_interface():
     st.subheader("Structured Knowledge Query")
@@ -74,7 +81,7 @@ def scaffolded_interface():
             format_type = st.radio("Output Format", ["Short Summary", "Bullet Points", "Raw Data Table"])
             
         specific_metric = st.text_input("Specific Metric or Keyword (e.g., 'Churn', 'Revenue')")
-        submitted = st.form_submit_button("Run Query")
+        submitted = st.form_submit_button("Run Query", type="primary")
         
         if submitted:
             st.session_state.iteration_count += 1
@@ -85,32 +92,37 @@ def scaffolded_interface():
                 full_prompt = f"{SYSTEM_CONTEXT}\n\nExtract this specific data and format it exactly as requested: {constructed_prompt}"
                 try:
                     response = model.generate_content(full_prompt)
-                    st.info(response.text)
+                    st.success("Query Successful")
+                    st.markdown(response.text) # Markdown looks cleaner than info for AI text
                 except ResourceExhausted as e:
                     st.warning("⚠️ System is experiencing high traffic. Please wait 15 seconds and try again.")
-                    print(f"API ERROR: {e}") # This sends the real error to your Mac's terminal
-                    
-                    
+                    print(f"API ERROR: {e}") 
+
                     
                     
 scaffolded_interface()
 
+st.write("---")
 
-if st.button("I found the answer!"):
+# --- LOGGING ---
+if st.button("✅ I found the answer!"):
     st.session_state.task_complete = True
     end_time = time.time()
     total_time = round(end_time - st.session_state.start_time, 2)
     
     data_to_insert = {
         "Participant_ID": int(time.time()), 
-        "Condition": st.session_state.experiment_group,
+        "Condition": st.session_state.get("experiment_group", "Scaffolded"), # Safe fallback
         "Total_Time_Seconds": total_time,
         "Prompt_Iterations": st.session_state.iteration_count
     }
     
     try:
         response = supabase.table("HCI").insert(data_to_insert).execute()
+        st.balloons()
         st.success(f"Task complete! Time: {total_time}s | Iterations: {st.session_state.iteration_count}")
         st.write("Data securely logged. Please proceed to the post-task survey.")
+        time.sleep(2)
+        st.stop() # Locks the page so they can't double-click
     except Exception as e:
         st.error(f"An error occurred while saving data: {e}")
