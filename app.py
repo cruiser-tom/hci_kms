@@ -16,7 +16,7 @@ st.write("Welcome! Please click the button below to be assigned to a system and 
 
 if st.button("Start Experiment", type="primary"):
     # Assign group and start the clock
-    st.session_state.experiment_group = random.choice(["Open", "Scaffold"])
+    st.session_state.experiment_group = random.choice(["Open", "Scaffolded"])
     st.session_state.start_time = time.time()
     
     if st.session_state.experiment_group == "Open":
