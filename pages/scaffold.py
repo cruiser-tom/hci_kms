@@ -5,29 +5,7 @@ import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI Explainable AI", layout="centered")
-# --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
 
-st.markdown(
-    """
-    <style>
-    /* Target any chat message that contains our hidden user-anchor */
-    div[data-testid="stChatMessage"]:has(.user-anchor) {
-        flex-direction: row-reverse;
-    }
-    
-    /* Align the text inside the content box to the right */
-    div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
-        align-items: flex-end;
-    }
-    
-    /* Ensure paragraph text is right-aligned */
-    div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
-        text-align: right;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash')
 
@@ -94,8 +72,9 @@ def scaffolded_interface():
     if user_query:
         st.session_state.iteration_count += 1
         with st.chat_message("user"):
+            # The anchor hack to push this message to the right
+            st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
-            
         with st.status("Crane is analyzing the dataset...", expanded=True) as status:
             st.write("🔍 Extracting product metadata...")
             time.sleep(0.6) 
