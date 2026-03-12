@@ -6,21 +6,22 @@ from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI Explainable AI", layout="centered")
 # --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
+
 st.markdown(
     """
     <style>
-    /* Flips the avatar and text box to the right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+    /* Target any chat message that contains our hidden user-anchor */
+    div[data-testid="stChatMessage"]:has(.user-anchor) {
         flex-direction: row-reverse;
     }
     
-    /* Forces the text container to align its items to the right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) [data-testid="stChatMessageContent"] {
+    /* Align the text inside the content box to the right */
+    div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
     }
     
-    /* Forces the actual paragraph text to align right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) .stMarkdown p {
+    /* Ensure paragraph text is right-aligned */
+    div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
         text-align: right;
     }
     </style>
