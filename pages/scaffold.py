@@ -67,20 +67,27 @@ def scaffolded_interface():
         st.markdown(
             """
             <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
-                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane</h1>
+                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane AI</h1>
                 <p style="font-size: 1.2rem; color: #888;">Explainable AI Analysis Engine</p>
             </div>
             """, 
             unsafe_allow_html=True
         )
         
-        # Suggested queries only show up before the first chat
+        # 1. We removed 'disabled=True'
+        # 2. We assign the button click to a variable
         st.caption("Suggested quick queries:")
         col1, col2 = st.columns(2)
-        with col1:
-            st.button("Scan all products for fake reviews", disabled=True)
-        with col2:
-            st.button("List products with 100% bot activity", disabled=True)
+        clicked_suggestion_1 = col1.button("Scan all products for fake reviews")
+        clicked_suggestion_2 = col2.button("List products with 100% bot activity")
+        
+        # 3. If they click the button, we force that text into the user_query variable
+        if clicked_suggestion_1:
+            user_query = "Scan all products for fake reviews"
+        elif clicked_suggestion_2:
+            user_query = "List products with 100% bot activity"
+
+
 
     # --- THE ACTIVE STATE ---
     if user_query:
