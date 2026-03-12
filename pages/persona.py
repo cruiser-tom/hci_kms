@@ -5,22 +5,22 @@ import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI | Assistant", layout="centered")
-# --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
+
 st.markdown(
     """
     <style>
-    /* Flips the avatar and text box to the right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+    /* Target any chat message that contains our hidden user-anchor */
+    div[data-testid="stChatMessage"]:has(.user-anchor) {
         flex-direction: row-reverse;
     }
     
-    /* Forces the text container to align its items to the right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) [data-testid="stChatMessageContent"] {
+    /* Align the text inside the content box to the right */
+    div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
     }
     
-    /* Forces the actual paragraph text to align right */
-    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) .stMarkdown p {
+    /* Ensure paragraph text is right-aligned */
+    div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
         text-align: right;
     }
     </style>
@@ -58,7 +58,6 @@ You are eager to help your coworker (the user) find fake reviews.
 # Product: Quantum Laptop Stand (3,400 Reviews, 4.8/5 Rating). AI Analysis: Authentic.
 """
 
-
 def persona_interface():
     user_query = st.chat_input("Message Martha...")
     
@@ -66,18 +65,33 @@ def persona_interface():
     if not user_query and st.session_state.iteration_count == 0:
         st.markdown(
             """
-            <div style="text-align: center; padding-top: 10vh; padding-bottom: 10vh;">
+            <div style="text-align: center; padding-top: 10vh; padding-bottom: 6vh;">
                 <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Martha</h1>
-                <p style="font-size: 1.2rem; color: #888;">Your Data Team Coworker 👋</p>
+                <p style="font-size: 1.2rem; color: #888;">Hi, Iam your Data Team Coworker 👋</p>
             </div>
             """, 
             unsafe_allow_html=True
         )
+        
+        # --- SUGGESTED QUERIES (Conversational Tone) ---
+        st.caption("Ask Martha:")
+        col1, col2 = st.columns(2)
+        clicked_suggestion_1 = col1.button("Hey Martha, can you check for fake reviews?")
+        clicked_suggestion_2 = col2.button("Which products have suspicious bot activity?")
+        
+        # Override user_query if a button is clicked
+        if clicked_suggestion_1:
+            user_query = "Hey Martha, can you check for fake reviews?"
+        elif clicked_suggestion_2:
+            user_query = "Which products have suspicious bot activity?"
 
     # --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
+        
         with st.chat_message("user"):
+            # The anchor hack to push this message to the right
+            st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
             
         with st.spinner("Martha is typing..."):
@@ -87,9 +101,11 @@ def persona_interface():
                 with st.chat_message("assistant", avatar="🧑‍💻"):
                     st.write(response.text)
             except ResourceExhausted:
-                st.warning("⚠️ Martha is busy. Please wait 15 seconds.")
+                st.warning("⚠️ Martha is helping someone else right now. Please wait 15 seconds.")
             except Exception as e:
                 st.error("System Error.")
+                
+                
                 
 
 persona_interface()
