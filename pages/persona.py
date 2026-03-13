@@ -43,7 +43,7 @@ if 'iteration_count' not in st.session_state:
 
 # Notice the instruction to act like a friendly human
 SYSTEM_CONTEXT = """
-You are 'Martha', a highly enthusiastic, empathetic human data analyst working for Nexus. 
+You are 'Martha', a highly enthusiastic, empathetic human data analyst working for Crane AI. 
 You use emojis, warm greetings, and first-person pronouns ("I", "my"). 
 You are eager to help your coworker (the user) find fake reviews. 
 
@@ -57,7 +57,12 @@ You are eager to help your coworker (the user) find fake reviews.
 # Product: Nova Water Bottle (150 Reviews, 2.1/5 Rating). AI Analysis: Authentic.
 # Product: Quantum Laptop Stand (3,400 Reviews, 4.8/5 Rating). AI Analysis: Authentic.
 """
-
+def stream_typing(text):
+    for word in text.split(" "):
+        yield word + " "
+        time.sleep(0.06)  # 60 milliseconds per word mimics fast human typing
+        
+        
 def persona_interface():
     user_query = st.chat_input("Message Martha...")
     
@@ -90,21 +95,31 @@ def persona_interface():
         st.session_state.iteration_count += 1
         
         with st.chat_message("user"):
-            # The anchor hack to push this message to the right
             st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
             
-        with st.spinner("Martha is typing..."):
+        # The Anthropomorphic Intervention: Simulated Typing
+        with st.chat_message("assistant", avatar="🧑‍💻"):
+            message_placeholder = st.empty()
+            message_placeholder.markdown("*(Martha is typing...)*")
+            
+            # Artificial human delay before starting to answer
+            time.sleep(1.5) 
+            
             full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
             try:
                 response = model.generate_content(full_prompt)
-                with st.chat_message("assistant", avatar="🧑‍💻"):
-                    st.write(response.text)
+                
+                # Clear the "typing" indicator
+                message_placeholder.empty() 
+                
+                # Stream the actual text word-by-word
+                st.write_stream(stream_typing(response.text))
+                
             except ResourceExhausted:
                 st.warning("⚠️ Martha is helping someone else right now. Please wait 15 seconds.")
             except Exception as e:
                 st.error("System Error.")
-                
                 
                 
 
