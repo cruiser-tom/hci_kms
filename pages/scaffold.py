@@ -96,13 +96,29 @@ def scaffolded_interface():
             # The anchor hack to push this message to the right
             st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
-        with st.status("Crane is analyzing the dataset...", expanded=True) as status:
+            
+        # Trust UI Element: The Labor Illusion (Progress Bar + Status)
+        with st.status("Crane AI is analyzing the dataset...", expanded=True) as status:
+            # Create an empty progress bar
+            progress_bar = st.progress(0)
+            
             st.write("🔍 Extracting product metadata...")
+            progress_bar.progress(25) # Fills to 25%
             time.sleep(0.6) 
+            
             st.write("📊 Running linguistic anomaly detection models...")
+            progress_bar.progress(60) # Fills to 60%
             time.sleep(0.7)
+            
+            st.write("🛡️ Cross-referencing account age heuristics...")
+            progress_bar.progress(85) # Fills to 85%
+            time.sleep(0.5)
+            
             st.write("✅ Compiling final trust and safety report...")
+            progress_bar.progress(100) # Fills to 100%
+            
             status.update(label="Analysis Complete", state="complete", expanded=False)
+            
             
         full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
         try:
