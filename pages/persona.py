@@ -104,7 +104,7 @@ def persona_interface():
             message_placeholder.markdown("*(Martha is typing...)*")
             
             # Artificial human delay before starting to answer
-            time.sleep(1.5) 
+            time.sleep(0.5) 
             
             full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
             try:
