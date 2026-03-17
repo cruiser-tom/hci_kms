@@ -82,8 +82,16 @@ Hey there! I have analyzed the catalog and found the products you requested.
 
 def combined_interface():
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+        # 1. Determine the correct avatar before drawing the message
+        if message["role"] == "assistant":
+            current_avatar = "🧑‍💻"
+        else:
+            current_avatar = "user" # Uses the default red user block
+            
+        # 2. Draw the message using the correct avatar
+        with st.chat_message(message["role"], avatar=current_avatar):
             if message["role"] == "user":
+                # Keeps the right-alignment anchor for the user
                 st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.markdown(message["content"])
 
