@@ -4,7 +4,7 @@ from supabase import create_client
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-st.set_page_config(page_title="Crane AI | Omnimodal System", layout="centered")
+st.set_page_config(page_title="Crane AI", layout="centered")
 
 # --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
 st.markdown(
