@@ -96,6 +96,7 @@ def combined_interface():
                 # Keeps the right-alignment anchor for the user
                 st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.markdown(message["content"])
+            
     user_query = st.chat_input("Message Martha...")
     
     # --- THE "EMPTY STATE" ---
@@ -128,19 +129,31 @@ def combined_interface():
             st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
         st.session_state.messages.append({"role": "user", "content": user_query})
-            
-        # The Explainable Progress Bar
-        with st.status("Martha is analyzing the dataset...", expanded=True) as status:
-            progress_bar = st.progress(0)
-            st.write("🔍 Extracting product metadata...")
-            progress_bar.progress(30)
-            time.sleep(0.6) 
-            st.write("📊 Running linguistic anomaly detection models...")
-            progress_bar.progress(70)
-            time.sleep(0.7)
-            st.write("✅ Compiling final trust and safety report...")
-            progress_bar.progress(100)
-            status.update(label="Analysis Complete", state="complete", expanded=False)
+        
+
+        # 1. Break the user's sentence into individual lowercase words
+        words_in_query = user_query.lower().split()
+        
+        # 2. Define the starting letters (prefixes) that trigger the analysis
+        task_prefixes = ["prod", "review", "bot", "fake", "susp", "scan", "analy", "data", "list", "activ"]
+        
+        # 3. Check if ANY word in the sentence starts with ANY of those prefixes
+        is_task_query = any(word.startswith(prefix) for word in words_in_query for prefix in task_prefixes)
+        
+        # Only trigger the heavy progress bar if it's a task query OR a long sentence
+        if is_task_query:
+            with st.status("Martha is analyzing the dataset...", expanded=True) as status:
+                progress_bar = st.progress(0)
+                st.write("🔍 Extracting product metadata...")
+                progress_bar.progress(30)
+                time.sleep(0.6) 
+                st.write("📊 Running linguistic anomaly detection models...")
+                progress_bar.progress(70)
+                time.sleep(0.7)
+                st.write("✅ Compiling final trust and safety report...")
+                progress_bar.progress(100)
+                status.update(label="Analysis Complete", state="complete", expanded=False)
+                
             
         # The Persona Typing Effect + Cited Data Split
         with st.chat_message("assistant", avatar="🧑‍💻"):
