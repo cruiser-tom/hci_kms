@@ -41,7 +41,7 @@ if 'iteration_count' not in st.session_state:
 def stream_typing(text):
     for word in text.split(" "):
         yield word + " "
-        time.sleep(0.06)
+        time.sleep(0.03)
 
 # Adjusted prompt to include the "Martha" persona while keeping the strict table format
 SYSTEM_CONTEXT = """
@@ -123,7 +123,7 @@ def combined_interface():
         with st.chat_message("assistant", avatar="🧑‍💻"):
             message_placeholder = st.empty()
             message_placeholder.markdown("*(Martha is typing...)*")
-            time.sleep(1.0) 
+            time.sleep(0.5) 
             
             full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
             try:
@@ -165,7 +165,7 @@ if st.button("✅ I found the two products!"):
     try:
         supabase.table("HCI").insert(data).execute()
         st.success("Data logged. Redirecting to final survey...")
-        time.sleep(1.5)
+        time.sleep(0.5)
         st.switch_page("pages/survey.py") 
     except Exception as e:
         st.error(f"Error: {e}")
