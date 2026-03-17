@@ -40,7 +40,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("Initialize AI System", type="primary", use_container_width=True):
         # Randomly assign from 4 groups
-        groups = ["Open", "Scaffolded", "Cited", "Persona"]
+        groups = ["Open", "Scaffolded", "Cited", "Combined"]
         st.session_state.experiment_group = random.choice(groups)
         st.session_state.start_time = time.time()
         
@@ -53,5 +53,5 @@ with col2:
                 st.switch_page("pages/scaffold.py")
             elif st.session_state.experiment_group == "Cited":
                 st.switch_page("pages/cited.py")
-            elif st.session_state.experiment_group == "Persona":
-                st.switch_page("pages/persona.py")
+            elif st.session_state.experiment_group == "Combined":
+                st.switch_page("pages/combined.py")
