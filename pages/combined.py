@@ -4,7 +4,7 @@ from supabase import create_client
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-st.set_page_config(page_title="Crane AI", layout="centered")
+st.set_page_config(page_title="Crane AI | Omnimodal System", layout="centered")
 
 # --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
 st.markdown(
@@ -37,11 +37,15 @@ if 'start_time' not in st.session_state:
 if 'iteration_count' not in st.session_state:
     st.session_state.iteration_count = 0
 
+# Initialize the chat memory
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
+
 # The typing simulator for the Persona aspect
 def stream_typing(text):
     for word in text.split(" "):
         yield word + " "
-        time.sleep(0.03)
+        time.sleep(0.04)
 
 # Adjusted prompt to include the "Martha" persona while keeping the strict table format
 SYSTEM_CONTEXT = """
@@ -77,6 +81,12 @@ Hey there! I have analyzed the catalog and found the products you requested.
 """
 
 def combined_interface():
+	for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            if message["role"] == "user":
+                st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
+            st.markdown(message["content"])
+
     user_query = st.chat_input("Message Martha...")
     
     # --- THE "EMPTY STATE" ---
@@ -98,15 +108,19 @@ def combined_interface():
         if col2.button("Which products have suspicious bot activity?"):
             user_query = "Which products have suspicious bot activity?"
 
-    # --- THE ACTIVE STATE ---
+
+
+	# --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
         
+        # 1. Show and save the user's message
         with st.chat_message("user"):
             st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
+        st.session_state.messages.append({"role": "user", "content": user_query})
             
-        # Feature 1: The Explainable Progress Bar
+        # The Explainable Progress Bar
         with st.status("Martha is analyzing the dataset...", expanded=True) as status:
             progress_bar = st.progress(0)
             st.write("🔍 Extracting product metadata...")
@@ -119,34 +133,44 @@ def combined_interface():
             progress_bar.progress(100)
             status.update(label="Analysis Complete", state="complete", expanded=False)
             
-        # Feature 2: The Persona Typing Effect + Feature 3: Cited Data Split
+        # The Persona Typing Effect + Cited Data Split
         with st.chat_message("assistant", avatar="🧑‍💻"):
             message_placeholder = st.empty()
             message_placeholder.markdown("*(Martha is typing...)*")
-            time.sleep(0.5) 
+            time.sleep(0.2) 
             
-            full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
+            # 2. Build the memory string to send to the AI
+            chat_history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages])
+            full_prompt = f"{SYSTEM_CONTEXT}\n\nChat History:\n{chat_history_text}\n\nUser Query: {user_query}"
+            
             try:
                 response = model.generate_content(full_prompt)
                 message_placeholder.empty() 
                 
+                final_ai_text = response.text
+                
                 if "|||" in response.text:
                     chat_text, raw_data = response.text.split("|||", 1)
                     
-                    # Stream the friendly text like a human
                     st.write_stream(stream_typing(chat_text.strip()))
                     
-                    # Pop open the official data table below it
                     with st.expander("📊 View System Data Verification", expanded=True):
-                        st.caption("Raw extract from Crane AI Product Database:")
+                        st.caption("Raw extract from Crane AI Database:")
                         st.markdown(raw_data.strip())
+                        
+                    # 3a. Save the AI's full split response to memory
+                    st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data:**\n" + raw_data.strip()})
                 else:
                     st.write_stream(stream_typing(response.text))
+                    # 3b. Save the normal response to memory
+                    st.session_state.messages.append({"role": "assistant", "content": response.text})
                     
             except ResourceExhausted:
                 st.warning("⚠️ Martha is helping someone else right now. Please wait 15 seconds.")
             except Exception as e:
                 st.error("System Error.")
+
+
 
 combined_interface()
 st.write("---")
