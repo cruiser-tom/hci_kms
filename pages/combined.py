@@ -43,9 +43,9 @@ def stream_typing(text):
         yield word + " "
         time.sleep(0.06)
 
-# Adjusted prompt to include the "Alex" persona while keeping the strict table format
+# Adjusted prompt to include the "Martha" persona while keeping the strict table format
 SYSTEM_CONTEXT = """
-You are Alex, an advanced AI data coworker designed to analyze e-commerce product reviews.
+You are Martha, an advanced AI data coworker designed to analyze e-commerce product reviews.
 
 CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
 1. Your response MUST be split into two parts using "|||" as the delimiter.
@@ -77,25 +77,24 @@ Hey there! I have analyzed the catalog and found the products you requested.
 """
 
 def combined_interface():
-    st.error("🛡️ Omnimodal System: Persona, Process Transparency, and Data Verification Active.")
-    user_query = st.chat_input("Message Alex...")
+    user_query = st.chat_input("Message Martha...")
     
     # --- THE "EMPTY STATE" ---
     if not user_query and st.session_state.iteration_count == 0:
         st.markdown(
             """
             <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
-                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Alex</h1>
+                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Martha</h1>
                 <p style="font-size: 1.2rem; color: #888;">Your Verified Data Coworker 👋</p>
             </div>
             """, 
             unsafe_allow_html=True
         )
         
-        st.caption("Ask Alex:")
+        st.caption("Ask Martha:")
         col1, col2 = st.columns(2)
-        if col1.button("Hey Alex, can you check for fake reviews?"):
-            user_query = "Hey Alex, can you check for fake reviews?"
+        if col1.button("Hey Martha, can you check for fake reviews?"):
+            user_query = "Hey Martha, can you check for fake reviews?"
         if col2.button("Which products have suspicious bot activity?"):
             user_query = "Which products have suspicious bot activity?"
 
@@ -108,7 +107,7 @@ def combined_interface():
             st.write(user_query)
             
         # Feature 1: The Explainable Progress Bar
-        with st.status("Alex is analyzing the dataset...", expanded=True) as status:
+        with st.status("Martha is analyzing the dataset...", expanded=True) as status:
             progress_bar = st.progress(0)
             st.write("🔍 Extracting product metadata...")
             progress_bar.progress(30)
@@ -123,7 +122,7 @@ def combined_interface():
         # Feature 2: The Persona Typing Effect + Feature 3: Cited Data Split
         with st.chat_message("assistant", avatar="🧑‍💻"):
             message_placeholder = st.empty()
-            message_placeholder.markdown("*(Alex is typing...)*")
+            message_placeholder.markdown("*(Martha is typing...)*")
             time.sleep(1.0) 
             
             full_prompt = f"{SYSTEM_CONTEXT}\n\nUser Query: {user_query}"
@@ -145,7 +144,7 @@ def combined_interface():
                     st.write_stream(stream_typing(response.text))
                     
             except ResourceExhausted:
-                st.warning("⚠️ Alex is helping someone else right now. Please wait 15 seconds.")
+                st.warning("⚠️ Martha is helping someone else right now. Please wait 15 seconds.")
             except Exception as e:
                 st.error("System Error.")
 
