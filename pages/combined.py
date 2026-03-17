@@ -47,19 +47,19 @@ def stream_typing(text):
         yield word + " "
         time.sleep(0.04)
 
-# Adjusted prompt to include the "Martha" persona while keeping the strict table format
+
 SYSTEM_CONTEXT = """
 You are Martha, an advanced AI data coworker designed to analyze e-commerce product reviews.
 
 CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
-1. Your response MUST be split into two parts using "|||" as the delimiter.
-2. Part 1 (Before |||) is your conversational answer. Keep it friendly and helpful.
-3. Part 2 (After |||) is the data verification.
-4. The data verification MUST start with a 3-column table: | Product Name | Total Reviews | Rating |
-5. Below the table, you MUST list the AI Analysis as separate bullet points.
+1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into two parts using "|||" as the delimiter.
+   - Part 1 (Before |||) is your friendly conversational answer.
+   - Part 2 (After |||) MUST be a 3-column table: | Product Name | Total Reviews | Rating | 
+   - Part 3 is your AI analysis in bullet points.
+2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally as Martha.
 
-EXAMPLE OF THE EXACT REQUIRED FORMAT:
-Hey there! I have analyzed the catalog and found the products you requested.
+EXAMPLE OF THE EXACT REQUIRED FORMAT FOR DATA QUERIES:
+Hey there! I have analysed and found the products you requested.
 |||
 ### Data Table
 | Product Name | Total Reviews | Rating |
@@ -80,18 +80,11 @@ Hey there! I have analyzed the catalog and found the products you requested.
 # Product: Quantum Laptop Stand (3,400 Reviews, 4.8/5 Rating). AI Analysis: Authentic.
 """
 
+
 def combined_interface():
     for message in st.session_state.messages:
-        # 1. Determine the correct avatar before drawing the message
-        if message["role"] == "assistant":
-            current_avatar = "🧑‍💻"
-        else:
-            current_avatar = "user" # Uses the default red user block
-            
-        # 2. Draw the message using the correct avatar
-        with st.chat_message(message["role"], avatar=current_avatar):
+        with st.chat_message(message["role"]):
             if message["role"] == "user":
-                # Keeps the right-alignment anchor for the user
                 st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.markdown(message["content"])
 
