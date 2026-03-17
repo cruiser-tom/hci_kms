@@ -58,7 +58,6 @@ Do not use markdown tables unless the user explicitly asks for one.
 """
 
 def minimalist_interface():
-    st.info("ℹ️ Standard System Active.")
     
     # --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
