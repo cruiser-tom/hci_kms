@@ -124,7 +124,7 @@ def scaffolded_interface():
                 status.update(label="Analysis Complete", state="complete", expanded=False)
                 
         # 3. Generate and save AI response
-        with st.chat_message("assistant", avatar="🤖"):
+        with st.chat_message("assistant", avatar="🧑‍💻"):
             chat_history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages])
             full_prompt = f"{SYSTEM_CONTEXT}\n\nChat History:\n{chat_history_text}\n\nUser Query: {user_query}"
             
