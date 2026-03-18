@@ -18,8 +18,8 @@ st.markdown(
     /* 2. Set the exact width (700px) for the main content */
     .block-container {
         max-width: 800px !important;
-        padding-top: 5rem !important;
-        padding-bottom: 5rem !important; 
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important; 
     }
 
     /* 3. Match the chat input box width perfectly to the content */
@@ -36,7 +36,7 @@ st.markdown(
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
         background-color: #2b2b2b;
-        
+        padding: 10px 10px;
         border-radius: 20px 20px 5px 20px;
         color: #ffffff;
         max-width: 80%;
