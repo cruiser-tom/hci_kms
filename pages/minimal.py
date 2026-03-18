@@ -8,6 +8,7 @@ st.set_page_config(page_title="Crane AI", layout="wide", initial_sidebar_state="
 
 # --- CUSTOM CSS ---
 # --- CUSTOM CSS ---
+# --- CUSTOM CSS ---
 st.markdown(
     """
     <style>
@@ -16,29 +17,31 @@ st.markdown(
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* 2. Expand the main container for that immersive Gemini feel */
+    /* 2. Expand the main container */
     .block-container {
         padding-top: 3rem !important;
-        padding-bottom: 3rem !important;
+        padding-bottom: 8rem !important; /* Leave room for the chat box */
         max-width: 1000px !important; /* Perfect width for reading text */
     }
 
-    /* 3. Give the chat input box some breathing room at the bottom */
-    [data-testid="stChatInput"] {
+    /* 3. Fix the chat input box width to match the content */
+    [data-testid="stBottomBlock"] {
+        max-width: 1000px !important;
+        margin: 0 auto !important;
         padding-bottom: 2vh;
     }
 
-    /* 4. User Message Styling - Right aligned with smooth gray/blue background */
+    /* 4. User Message Styling - Right aligned with dark mode bubble */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
         flex-direction: row-reverse;
         background-color: transparent;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
-        background-color: #f0f4f9; 
+       
         padding: 15px 20px;
         border-radius: 20px 20px 5px 20px;
-        color: #1f1f1f;
+        
         max-width: 80%;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
