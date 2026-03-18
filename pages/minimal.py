@@ -21,12 +21,12 @@ st.markdown(
     .block-container {
         padding-top: 3rem !important;
         padding-bottom: 8rem !important; /* Leave room for the chat box */
-        max-width: 1000px !important; /* Perfect width for reading text */
+       
     }
 
     /* 3. Fix the chat input box width to match the content */
     [data-testid="stBottomBlock"] {
-        max-width: 1000px !important;
+        
         margin: 0 auto !important;
         padding-bottom: 2vh;
     }
