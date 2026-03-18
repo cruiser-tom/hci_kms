@@ -1,0 +1,173 @@
+import streamlit as st
+import time
+from supabase import create_client
+
+st.set_page_config(page_title="Crane AI | Final Survey", layout="wide")
+
+@st.cache_resource
+def init_connection():
+    return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
+supabase = init_connection()
+
+# --- SECURITY CHECK ---
+if 'participant_id' not in st.session_state or 'experiment_group' not in st.session_state:
+    st.warning("⚠️ No active session found. Please start from the main page.")
+    st.stop()
+
+ui_group = st.session_state.experiment_group
+options_7pt = [1, 2, 3, 4, 5, 6, 7]
+
+st.markdown(
+    """
+    <div style="text-align: center; padding-top: 2vh; padding-bottom: 2vh;">
+        <h1 style="font-size: 2.5rem; font-weight: 600; margin-bottom: 0;">Post-Experiment Survey</h1>
+        <p style="font-size: 1.1rem; color: #888;">There are no right or wrong answers. Honest responses are essential to the research.</p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
+st.divider()
+
+# --- PART 1: COMMON CORE ---
+st.header("Part 1: Core System Evaluation")
+st.caption("Scale: 1 = Strongly Disagree, 7 = Strongly Agree")
+
+st.subheader("Section A - Trust in the AI System")
+a1 = st.radio("1. I trusted the AI's recommendations to make my final decision.", options_7pt, horizontal=True, index=None)
+a2 = st.radio("2. The AI system performed reliably throughout my interaction.", options_7pt, horizontal=True, index=None)
+a3 = st.radio("3. I felt confident in the accuracy of the information the AI provided.", options_7pt, horizontal=True, index=None)
+a4 = st.radio("4. I felt the AI was transparent about how it arrived at its answers.", options_7pt, horizontal=True, index=None)
+a5 = st.radio("5. I was concerned that the AI might be incorrect or misleading.", options_7pt, horizontal=True, index=None)
+
+st.subheader("Section B - Perceived Usability")
+b1 = st.radio("1. The interface was easy to navigate and understand.", options_7pt, horizontal=True, index=None)
+b2 = st.radio("2. I found the layout of the AI chat interface intuitive.", options_7pt, horizontal=True, index=None)
+b3 = st.radio("3. The time I spent on the task felt appropriate and efficient.", options_7pt, horizontal=True, index=None)
+b4 = st.radio("4. I would find this type of interface unnecessarily complex to use on a regular basis.", options_7pt, horizontal=True, index=None)
+
+st.subheader("Section C - Transparency & Decision-Making")
+c1 = st.radio("1. The AI interface made it clear how it reached its conclusions.", options_7pt, horizontal=True, index=None)
+c2 = st.radio("2. I felt I needed additional verification beyond what the AI provided.", options_7pt, horizontal=True, index=None)
+c3 = st.radio("3. The information displayed was sufficient for me to make a confident decision.", options_7pt, horizontal=True, index=None)
+c4 = st.radio("4. I would have liked more explanation about how the AI processes and evaluates data.", options_7pt, horizontal=True, index=None)
+c5 = st.radio("5. The way the AI presented data visibly influenced my final product decision.", options_7pt, horizontal=True, index=None)
+
+st.divider()
+
+# --- PART 2: CONDITION-SPECIFIC MODULES ---
+st.header(f"Part 2: Interface Specifics")
+st.caption("Please reflect on the specific features of the interface you just used.")
+
+condition_data = {}
+
+if ui_group == "Minimal":
+    m1 = st.radio("1. I felt uncertain about where to begin when I first started interacting with the AI.", options_7pt, horizontal=True, index=None)
+    m2 = st.radio("2. The lack of visual guidance made me less confident in my final answer.", options_7pt, horizontal=True, index=None)
+    m3 = st.radio("3. I felt I had to put in more mental effort to formulate useful questions compared to what a guided interface might require.", options_7pt, horizontal=True, index=None)
+    m4 = st.radio("4. Despite the minimal interface, I felt in control of the direction of the conversation.", options_7pt, horizontal=True, index=None)
+    
+    st.write("5. Rank the following features in order of how much you wished the interface had provided them (1 = Most wanted).")
+    col1, col2, col3, col4 = st.columns(4)
+    rank_m1 = col1.selectbox("Suggested prompts", [1, 2, 3, 4], key="rm1", index=None)
+    rank_m2 = col2.selectbox("Confidence score", [1, 2, 3, 4], key="rm2", index=None)
+    rank_m3 = col3.selectbox("Structured data table", [1, 2, 3, 4], key="rm3", index=None)
+    rank_m4 = col4.selectbox("Step-by-step explanation", [1, 2, 3, 4], key="rm4", index=None)
+    
+    condition_data = {"M1": m1, "M2": m2, "M3": m3, "M4": m4, "Rank_Prompts": rank_m1, "Rank_Score": rank_m2, "Rank_Table": rank_m3, "Rank_Explanation": rank_m4}
+
+elif ui_group == "Explainable":
+    e1 = st.radio("1. The animated status indicators made the AI feel more sophisticated and trustworthy.", options_7pt, horizontal=True, index=None)
+    e2 = st.radio("2. The Confidence Score badge influenced how much I relied on the AI's final answer.", options_7pt, horizontal=True, index=None)
+    e3 = st.radio("3. The progress bar helped me feel oriented during the task.", options_7pt, horizontal=True, index=None)
+    e4 = st.radio("4. The quick-prompt suggestion chips were helpful in guiding me toward productive questions.", options_7pt, horizontal=True, index=None)
+    e5 = st.radio("5. The additional visual elements felt like they slowed me down rather than helping me.", options_7pt, horizontal=True, index=None)
+    
+    st.write("6. Rank the following features in order of how much they influenced your trust (1 = Most influential).")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    rank_e1 = col1.selectbox("Confidence badge", [1, 2, 3, 4, 5], key="re1", index=None)
+    rank_e2 = col2.selectbox("Status indicators", [1, 2, 3, 4, 5], key="re2", index=None)
+    rank_e3 = col3.selectbox("Progress bar", [1, 2, 3, 4, 5], key="re3", index=None)
+    rank_e4 = col4.selectbox("Suggestion chips", [1, 2, 3, 4, 5], key="re4", index=None)
+    rank_e5 = col5.selectbox("Written answer", [1, 2, 3, 4, 5], key="re5", index=None)
+    
+    condition_data = {"E1": e1, "E2": e2, "E3": e3, "E4": e4, "E5": e5, "Rank_Badge": rank_e1, "Rank_Status": rank_e2, "Rank_Progress": rank_e3, "Rank_Chips": rank_e4, "Rank_Text": rank_e5}
+
+elif ui_group == "Verified":
+    v1 = st.radio("1. The formatted data tables made it easier to reach a confident decision compared to a text-only answer.", options_7pt, horizontal=True, index=None)
+    v2 = st.radio("2. The AI's use of specific numbers and citations made its answers feel more credible.", options_7pt, horizontal=True, index=None)
+    v3 = st.radio("3. The 'Data Verified System' banner made me feel the AI's outputs were more reliable.", options_7pt, horizontal=True, index=None)
+    v4 = st.radio("4. Having numerical evidence available reduced the number of follow-up questions I needed to ask.", options_7pt, horizontal=True, index=None)
+    v5 = st.radio("5. The volume of data and numbers presented felt overwhelming at times.", options_7pt, horizontal=True, index=None)
+    
+    st.write("6. Rank the following elements in order of how much they influenced your trust (1 = Most influential).")
+    col1, col2, col3, col4 = st.columns(4)
+    rank_v1 = col1.selectbox("Cited numbers", [1, 2, 3, 4], key="rv1", index=None)
+    rank_v2 = col2.selectbox("Markdown table", [1, 2, 3, 4], key="rv2", index=None)
+    rank_v3 = col3.selectbox("Verified banner", [1, 2, 3, 4], key="rv3", index=None)
+    rank_v4 = col4.selectbox("Written explanation", [1, 2, 3, 4], key="rv4", index=None)
+    
+    condition_data = {"V1": v1, "V2": v2, "V3": v3, "V4": v4, "V5": v5, "Rank_Numbers": rank_v1, "Rank_Table": rank_v2, "Rank_Banner": rank_v3, "Rank_Explanation": rank_v4}
+
+elif ui_group == "Combined":
+    cb1 = st.radio("1. Martha's friendly personality made the data verification table feel more trustworthy.", options_7pt, horizontal=True, index=None)
+    cb2 = st.radio("2. The combination of Martha's tone AND the raw data table gave me more confidence than either feature alone.", options_7pt, horizontal=True, index=None)
+    cb3 = st.radio("3. The animated status indicators and progress bar made me feel Martha was working harder to find a reliable answer.", options_7pt, horizontal=True, index=None)
+    cb4 = st.radio("4. The number of features in the interface felt overwhelming rather than helpful.", options_7pt, horizontal=True, index=None)
+    cb5 = st.radio("5. Martha's personality influenced my trust more than the data table she provided.", options_7pt, horizontal=True, index=None)
+    
+    st.write("6. Rank the following features from most to least influential on your trust (1 = Most influential).")
+    col1, col2, col3, col4 = st.columns(4)
+    rank_cb1 = col1.selectbox("Martha's persona", [1, 2, 3, 4], key="rcb1", index=None)
+    rank_cb2 = col2.selectbox("Status indicators", [1, 2, 3, 4], key="rcb2", index=None)
+    rank_cb3 = col3.selectbox("Data table", [1, 2, 3, 4], key="rcb3", index=None)
+    rank_cb4 = col4.selectbox("Suggestion chips", [1, 2, 3, 4], key="rcb4", index=None)
+    
+    condition_data = {"CB1": cb1, "CB2": cb2, "CB3": cb3, "CB4": cb4, "CB5": cb5, "Rank_Persona": rank_cb1, "Rank_Status": rank_cb2, "Rank_Table": rank_cb3, "Rank_Chips": rank_cb4}
+
+st.divider()
+
+# --- PART 3: REFLECTION & DEMOGRAPHICS ---
+st.header("Part 3: Reflection & Demographics")
+
+d1 = st.selectbox("1. How often do you use AI-powered tools in your daily work or study?", ["Never", "Rarely (less than once per month)", "Sometimes (about once per week)", "Often (daily)", "Very Often (multiple times per day)"], index=None)
+d2 = st.text_input("2. What aspect of the interface most influenced your trust in the AI's answer? (Optional)")
+d3 = st.text_input("3. Was there any feature you felt was missing, or that would have improved your experience? (Optional)")
+d4 = st.selectbox("4. Overall, how would you rate your experience with the AI interface?", ["1 - Very Poor", "2 - Poor", "3 - Fair", "4 - Good", "5 - Excellent"], index=None)
+d5 = st.selectbox("5. What is your age range?", ["18 – 24", "25 – 34", "35 – 44", "45 or above"], index=None)
+d6 = st.selectbox("6. What is your gender?", ["Male", "Female", "Non-binary", "Prefer not to say"], index=None)
+d7 = st.selectbox("7. What is your highest level of education completed?", ["High School / Secondary Education", "Undergraduate Degree (Bachelor's)", "Postgraduate Degree (Master's)", "Doctoral Degree (PhD)"], index=None)
+
+st.divider()
+
+# --- VALIDATION AND SUBMIT ---
+core_answers = [a1, a2, a3, a4, a5, b1, b2, b3, b4, c1, c2, c3, c4, c5]
+demo_answers = [d1, d4, d5, d6, d7] # Excluded D2 and D3 so users can leave text feedback blank if they want
+condition_answers = list(condition_data.values())
+
+all_required_answers = core_answers + demo_answers + condition_answers
+
+if st.button("Submit Survey & Finish", type="primary", use_container_width=True):
+    if None in all_required_answers:
+        st.error("⚠️ Please answer all multiple-choice questions before submitting.")
+    else:
+        with st.spinner("Saving responses..."):
+            
+            full_survey_payload = {
+                "Core_A": {"A1": a1, "A2": a2, "A3": a3, "A4": a4, "A5": a5},
+                "Core_B": {"B1": b1, "B2": b2, "B3": b3, "B4": b4},
+                "Core_C": {"C1": c1, "C2": c2, "C3": c3, "C4": c4, "C5": c5},
+                "Condition_Specific": condition_data,
+                "Demographics": {"D1": d1, "D2": d2, "D3": d3, "D4": d4, "D5": d5, "D6": d6, "D7": d7}
+            }
+            
+            try:
+                supabase.table("HCI").update({"Survey_Data": full_survey_payload}).eq("Participant_ID", st.session_state.participant_id).execute()
+                
+                st.success("✅ Survey submitted successfully! Thank you for your participation.")
+                st.balloons()
+                time.sleep(3)
+                
+                st.session_state.clear() 
+                st.switch_page("index.py")
+            except Exception as e:
+                st.error(f"Error saving data: {e}")
