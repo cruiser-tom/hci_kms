@@ -4,10 +4,8 @@ from supabase import create_client
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-st.set_page_config(page_title="Crane AI", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
-# --- CUSTOM CSS ---
-# --- CUSTOM CSS ---
 # --- CUSTOM CSS ---
 st.markdown(
     """
@@ -17,28 +15,26 @@ st.markdown(
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* 2. Expand the main container */
+    /* 2. Set the exact Gemini width (approx 850px) for the main content */
     .block-container {
+        max-width: 850px !important;
         padding-top: 3rem !important;
-        padding-bottom: 8rem !important; /* Leave room for the chat box */
-       
+        padding-bottom: 8rem !important; 
     }
 
-    /* 3. Fix the chat input box width to match the content */
-    [data-testid="stBottomBlock"] {
-        
-        margin: 0 auto !important;
-        padding-bottom: 2vh;
+    /* 3. Match the chat input box width perfectly to the content */
+    [data-testid="stBottomBlock"] > div {
+        max-width: 850px !important;
     }
 
-    /* 4. User Message Styling - Right aligned with dark mode bubble */
+    /* 4. User Message Styling - Dark gray bubble */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
         flex-direction: row-reverse;
         background-color: transparent;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
-       
+        
         padding: 15px 20px;
         border-radius: 20px 20px 5px 20px;
         
