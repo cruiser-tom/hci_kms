@@ -3,7 +3,18 @@ import time
 from supabase import create_client
 
 st.set_page_config(page_title="Crane AI | Final Survey", layout="wide")
-
+st.markdown(
+    """
+    <style>
+    /* This makes all the question labels bigger and slightly bolder */
+    div[data-testid="stWidgetLabel"] p {
+        font-size: 18px !important;
+        font-weight: 500 !important;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
 @st.cache_resource
 def init_connection():
     return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
