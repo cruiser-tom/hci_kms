@@ -12,7 +12,7 @@ st.markdown(
     /* 1. Hide default Streamlit elements */
     #MainMenu, footer, header {visibility: hidden;}
 
-    /* 2. Lock the main width and center everything */
+    /* 2. Lock the main width */
     .block-container {
         max-width: 700px !important; 
         padding-top: 3rem !important;
@@ -22,49 +22,60 @@ st.markdown(
         max-width: 700px !important; 
     }
 
-    /* 3. DESTROY AVATARS: Hide the first element in every chat row (the avatar container) */
-    div[data-testid="stChatMessage"] > div:first-child:not([data-testid="stChatMessageContent"]),
+    /* 3. Hide all avatars and remove their spacing */
     [data-testid="stChatMessageAvatar"] {
         display: none !important;
-        width: 0 !important;
-        height: 0 !important;
-        margin: 0 !important;
+    }
+    [data-testid="stChatMessage"] {
+        gap: 0 !important;
     }
 
-    /* 4. USER MESSAGE - Pushed right, fit-content, no text clipping */
+    /* 4. USER MESSAGE - Forced full-width container, aligned right */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
         display: flex !important;
-        justify-content: flex-end !important; /* Pushes the bubble to the right */
-        background-color: transparent !important;
+        flex-direction: row !important;
+        justify-content: flex-end !important; /* Pushes bubble to the right */
+        width: 100% !important; /* CRITICAL: Gives it the full screen to push across */
+        background: transparent !important;
     }
+
+    /* The User Bubble Shape */
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         background-color: #2b2b2b !important;
         color: #ffffff !important;
-        padding: 12px 16px !important;
+        padding: 12px 18px !important;
         border-radius: 20px 20px 5px 20px !important;
         width: fit-content !important;
         max-width: 80% !important;
-        flex: none !important;
+        
+        /* CRITICAL: Stops the text from getting vertically crushed */
+        display: block !important; 
+        height: auto !important; 
+        min-height: min-content !important;
+        overflow: visible !important;
     }
+
+    /* User Text Spacing */
     div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
         margin: 0 !important;
         padding: 0 !important;
-        line-height: 1.5 !important; /* Stops the bottom of words from cutting off */
-        color: #ffffff !important;
+        line-height: 1.5 !important;
     }
     
-    /* 5. AI MESSAGE - Clean text on the left */
+    /* 5. AI MESSAGE - Clean and transparent */
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) {
-        background-color: transparent !important;
+        background: transparent !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
     }
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) div[data-testid="stChatMessageContent"] {
         padding: 10px 0px !important; 
+        background: transparent !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash')
