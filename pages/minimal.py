@@ -6,7 +6,6 @@ from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
-# --- CUSTOM CSS ---
 st.markdown(
     """
     <style>
@@ -17,45 +16,48 @@ st.markdown(
 
     /* 2. Set the exact width for the main content */
     .block-container {
-        max-width: 700px !important; /* Matched to 700px */
+        max-width: 700px !important; 
         padding-top: 3rem !important;
-        padding-bottom: 8rem !important; /* Gives room so the chat input doesn't overlap text */
+        padding-bottom: 8rem !important; 
     }
 
     /* 3. Match the chat input box width perfectly to the content */
     [data-testid="stBottomBlock"] > div {
-        max-width: 700px !important; /* Matched to 700px */
+        max-width: 700px !important; 
     }
 
-    /* 4. User Message Styling - Dark gray bubble */
+    /* 4. User Message Styling - Dark gray bubble on the RIGHT */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
-        flex-direction: row-reverse;
-        background-color: transparent;
-        gap: 0 !important; 
+        display: flex !important;
+        flex-direction: row-reverse !important;
+        justify-content: flex-start !important; /* Pushes the bubble to the right edge */
+        background-color: transparent !important;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
-        background-color: #2b2b2b;
-        padding: 10px 15px;
-        border-radius: 20px 20px 5px 20px;
-        color: #ffffff;
-        max-width: 80%;
-        width: fit-content !important; /* <--- THIS FIXES THE STRETCHING BAR */
-        flex-grow: 0 !important;       /* <--- THIS STOPS THE FLEXBOX EXPANSION */
+        background-color: #2b2b2b !important;
+        color: #ffffff !important;
+        padding: 12px 18px !important; /* Adds safe space at the bottom so text isn't cut off */
+        border-radius: 20px 20px 5px 20px !important;
+        max-width: 80% !important;
+        width: fit-content !important;
+        flex: none !important; /* Stops the background from stretching */
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
-        margin-bottom: 0;
+        margin: 0 !important; /* Removes hidden margins causing clipping */
+        line-height: 1.5 !important;
     }
     
     /* 5. AI Message Styling - Clean and transparent */
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) {
-        gap: 0 !important; 
+        display: flex !important;
+        justify-content: flex-start !important;
     }
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) div[data-testid="stChatMessageContent"] {
-        background-color: transparent;
-        padding: 10px 15px;
+        background-color: transparent !important;
+        padding: 10px 0px !important; /* Flush with the left edge */
     }
 
-    /* 6. The "Nuclear Option" to force-hide all avatars */
+    /* 6. Force-hide all avatars */
     [data-testid="stChatMessageAvatar"],
     .stChatMessageAvatar,
     div[data-testid="stChatMessage"] > div:first-child:not([data-testid="stChatMessageContent"]) {
