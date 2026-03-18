@@ -49,6 +49,10 @@ st.markdown(
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) div[data-testid="stChatMessageContent"] {
         background-color: transparent;
         padding: 10px 15px;
+        /* 6. Hide the chat avatars to save mobile screen space */
+    [data-testid="stChatMessageAvatar"] {
+        display: none !important;
+    }
     }
     </style>
     """,
