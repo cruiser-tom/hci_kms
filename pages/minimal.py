@@ -4,20 +4,52 @@ from supabase import create_client
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-st.set_page_config(page_title="Crane AI | Standard System", layout="centered")
+st.set_page_config(page_title="Crane AI", layout="wide", initial_sidebar_state="collapsed")
 
+# --- CUSTOM CSS ---
 # --- CUSTOM CSS ---
 st.markdown(
     """
     <style>
+    /* 1. Hide Streamlit's default header, menu, and footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* 2. Expand the main container for that immersive Gemini feel */
+    .block-container {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 1000px !important; /* Perfect width for reading text */
+    }
+
+    /* 3. Give the chat input box some breathing room at the bottom */
+    [data-testid="stChatInput"] {
+        padding-bottom: 2vh;
+    }
+
+    /* 4. User Message Styling - Right aligned with smooth gray/blue background */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
         flex-direction: row-reverse;
+        background-color: transparent;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
         align-items: flex-end;
+        background-color: #f0f4f9; 
+        padding: 15px 20px;
+        border-radius: 20px 20px 5px 20px;
+        color: #1f1f1f;
+        max-width: 80%;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
         text-align: right;
+        margin-bottom: 0;
+    }
+    
+    /* 5. AI Message Styling - Clean and transparent */
+    div[data-testid="stChatMessage"]:not(:has(.user-anchor)) div[data-testid="stChatMessageContent"] {
+        background-color: transparent;
+        padding: 10px 15px;
     }
     </style>
     """,
