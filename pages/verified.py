@@ -4,7 +4,13 @@ from supabase import create_client
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
-st.set_page_config(page_title="Crane AI", layout="centered")
+st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
+
+# --- SECURITY CHECK ---
+if 'participant_id' not in st.session_state or 'experiment_group' not in st.session_state:
+    st.warning("⚠️ No active session found. Please start from the main page.")
+    st.stop()
+
 st.markdown(
     """
     <style>
@@ -24,6 +30,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash')
 
@@ -32,16 +39,15 @@ def init_connection():
     return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 supabase = init_connection()
 
+# --- INITIALIZE MEMORY ---
 if 'start_time' not in st.session_state:
     st.session_state.start_time = time.time()
 if 'iteration_count' not in st.session_state:
     st.session_state.iteration_count = 0
-
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
-
-# Updated Instruction: Using a strict template to force the formatting
+# ---> PASTE YOUR VERIFIED/CITED SYSTEM PROMPT HERE <---
 SYSTEM_CONTEXT = """
 You are an advanced AI designed to analyze e-commerce product reviews.
 
@@ -76,38 +82,13 @@ I have analyzed the catalog and found the products you requested.
 """
 
 
-
 def cited_interface():
+    
     st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")
-    user_query = st.chat_input("Message Crane...")
-    
-  
-    
-    # --- THE "EMPTY STATE" ---
-    if not user_query and st.session_state.iteration_count == 0:
-        st.markdown(
-            """
-            <div style="text-align: center; padding-top: 6vh; padding-bottom: 10vh;">
-                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
-                <p style="font-size: 1.2rem; color: #888;">Data-Verified Analysis System</p>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
-        st.caption("Suggested Queries:")
-        col1, col2 = st.columns(2)
-        if col1.button("Can you check for fake reviews?"):
-            user_query = "Can you check for fake reviews?"
-        if col2.button("Which products have suspicious bot activity?"):
-            user_query = "Which products have suspicious bot activity?"
-            
-
-
-# --- DISPLAY PAST CHAT HISTORY ---
+    # --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
         if message["role"] == "user":
-            # Pure HTML for the User: Guarantees right-alignment and perfect bubble shape
+            # Pure HTML User Bubble (Forces perfect right-alignment and shape)
             st.markdown(f"""
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                     <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
@@ -116,34 +97,57 @@ def cited_interface():
                 </div>
             """, unsafe_allow_html=True)
         else:
-            # Standard Markdown for AI: Flush left, transparent, no avatars
-            st.markdown(message["content"])
-            st.markdown("<br>", unsafe_allow_html=True) # Adds a small gap below AI messages
+            # Standard AI Message (CSS handles hiding the avatar)
+            with st.chat_message("assistant"):
+                st.markdown(message["content"])
 
+    # --- THE SINGLE CHAT INPUT (No duplicates!) ---
     user_query = st.chat_input("Message Crane...")
-
+    
+    # --- THE "EMPTY STATE" ---
+    if not user_query and len(st.session_state.messages) == 0:
+        st.markdown(
+            """
+            <div style="text-align: center; padding-top: 10vh; padding-bottom: 4vh;">
+                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
+                <p style="font-size: 1.2rem; color: #888;">Verified Analysis System</p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        st.markdown("<p style='text-align: center; color: #888; margin-bottom: 10px;'>Suggested Queries:</p>", unsafe_allow_html=True)
+        col_spacer1, col1, col2, col_spacer2 = st.columns([1, 4, 4, 1])
+        
+        with col1:
+            if st.button("Can you check for fake reviews?", use_container_width=True):
+                user_query = "Can you check for fake reviews?"
+        with col2:
+            if st.button("Which products have suspicious bot activity?", use_container_width=True):
+                user_query = "Which products have suspicious bot activity?"
 
     # --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
         
-        # 1. Show and save user message
-        with st.chat_message("user"):
-            st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
-            st.write(user_query)
+        # 1. Show the user message instantly via HTML
+        st.markdown(f"""
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                    {user_query}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
         st.session_state.messages.append({"role": "user", "content": user_query})
             
-        # 2. Prefix Filter for the Spinner
+        # 2. Spinner & AI Call
         words_in_query = user_query.lower().split()
         task_prefixes = ["prod", "review", "bot", "fake", "susp", "scan", "analy", "data", "list", "activ"]
         is_task_query = any(word.startswith(prefix) for word in words_in_query for prefix in task_prefixes)
         
-        # 3. Generate Response
-        # We only show the "Extracting..." spinner for actual tasks
         if is_task_query:
-            spinner_context = st.spinner("Extracting verifiable data...")
+            spinner_context = st.spinner("Checking verified sources...")
         else:
-            # A completely invisible block if it is just a greeting
             spinner_context = st.container() 
             
         with spinner_context:
@@ -173,21 +177,31 @@ def cited_interface():
                 st.warning("⚠️ High traffic. Please wait 15 seconds.")
             except Exception as e:
                 st.error("System Error.")
-                
-
-     
 
 cited_interface()
 st.write("---")
 
-if st.button("✅ I found the two products!"):
-    total_time = round(time.time() - st.session_state.start_time, 2)
-    data = {"Participant_ID": int(time.time()), "Condition": "Verified", "Total_Time_Seconds": total_time, "Prompt_Iterations": st.session_state.iteration_count}
-    try:
-        supabase.table("HCI").insert(data).execute()
-        st.success("Data logged. Redirecting to final survey...")
-        time.sleep(0.5)
-        st.switch_page("pages/survey.py") 
-    except Exception as e:
-        st.error(f"Error: {e}")
+# --- BOTTOM FINISH BUTTON ---
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("✅ I found the two products!", type="primary", use_container_width=True):
+        total_time = round(time.time() - st.session_state.start_time, 2)
         
+        # Safely gets the ID from memory, or creates the numeric timestamp fallback for testing
+        part_id = st.session_state.get("participant_id", int(time.time()))
+        group = st.session_state.get("experiment_group", "Verified")
+        
+        data = {
+            "Participant_ID": part_id, 
+            "Condition": group,    
+            "Total_Time_Seconds": total_time, 
+            "Prompt_Iterations": st.session_state.iteration_count
+        }
+        
+        try:
+            supabase.table("HCI").insert(data).execute()
+            st.success("Data logged. Redirecting to final survey...")
+            time.sleep(0.5)
+            st.switch_page("pages/survey.py") 
+        except Exception as e:
+            st.error(f"Error: {e}")
