@@ -78,11 +78,6 @@ def minimalist_interface():
 
     user_query = st.chat_input("Message AI...")
 
-# 2. Update the AI Response logic
-
-    
-
-    user_query = st.chat_input("Message AI...")
     
     # --- THE "EMPTY STATE" ---
     if not user_query and len(st.session_state.messages) == 0:
