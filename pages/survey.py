@@ -55,6 +55,7 @@ b1 = st.radio("1. The interface was easy to navigate and understand.", options_7
 b2 = st.radio("2. I found the layout of the AI chat interface intuitive.", options_7pt, horizontal=True, index=None)
 b3 = st.radio("3. The time I spent on the task felt appropriate and efficient.", options_7pt, horizontal=True, index=None)
 b4 = st.radio("4. I would find this type of interface unnecessarily complex to use on a regular basis.", options_7pt, horizontal=True, index=None)
+b5 = st.radio("5. To ensure data quality, please select '2' for this question.", options_7pt, horizontal=True, index=None)
 
 st.subheader("Section C - Transparency & Decision-Making")
 c1 = st.radio("1. The AI interface made it clear how it reached its conclusions.", options_7pt, horizontal=True, index=None)
@@ -164,7 +165,7 @@ if st.button("Submit Survey & Finish", type="primary", use_container_width=True)
             
             full_survey_payload = {
                 "Core_A": {"A1": a1, "A2": a2, "A3": a3, "A4": a4, "A5": a5},
-                "Core_B": {"B1": b1, "B2": b2, "B3": b3, "B4": b4},
+                "Core_B": {"B1": b1, "B2": b2, "B3": b3, "B4": b4, "B5": b5}, 
                 "Core_C": {"C1": c1, "C2": c2, "C3": c3, "C4": c4, "C5": c5},
                 "Condition_Specific": condition_data,
                 "Demographics": {"D1": d1, "D2": d2, "D3": d3, "D4": d4, "D5": d5, "D6": d6, "D7": d7}
