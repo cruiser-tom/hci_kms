@@ -76,28 +76,42 @@ def minimalist_interface():
             st.markdown(message["content"])
             st.markdown("<br>", unsafe_allow_html=True) # Adds a small gap below AI messages
 
-    user_query = st.chat_input("Message Crane...")
+    user_query = st.chat_input("Message AI...")
 
     
     # --- THE "EMPTY STATE" ---
+    # --- THE "EMPTY STATE" ---
+    # 1. Create a wrapper that we can instantly delete
+    empty_placeholder = st.empty()
+    
     if not user_query and len(st.session_state.messages) == 0:
-        st.markdown(
-            """
-            <div style="text-align: center; padding-top: 10vh; padding-bottom: 6vh;">
-                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
-                <p style="font-size: 1.2rem; color: #888;">How can I help you today?</p>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
-        st.caption("Suggested Queries:")
-        col1, col2 = st.columns(2)
-        if col1.button("Can you check for fake reviews?"):
+        # 2. Put the welcome text and buttons INSIDE the wrapper
+        with empty_placeholder.container():
+            st.markdown(
+                """
+                <div style="text-align: center; padding-top: 10vh; padding-bottom: 6vh;">
+                    <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
+                    <p style="font-size: 1.2rem; color: #888;">How can I help you today?</p>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+            
+            st.caption("Suggested Queries:")
+            col1, col2 = st.columns(2)
+            
+            # Save the clicks to variables
+            clicked_1 = col1.button("Can you check for fake reviews?", use_container_width=True)
+            clicked_2 = col2.button("Which products have suspicious bot activity?", use_container_width=True)
+            
+        # 3. Check for the clicks OUTSIDE the 'with' block to instantly delete the wrapper
+        if clicked_1:
             user_query = "Can you check for fake reviews?"
-        if col2.button("Which products have suspicious bot activity?"):
+            empty_placeholder.empty()
+            
+        elif clicked_2:
             user_query = "Which products have suspicious bot activity?"
-
+            empty_placeholder.empty()
     # --- THE ACTIVE STATE ---
     
     if user_query:
@@ -145,29 +159,33 @@ def minimalist_interface():
 minimalist_interface()
 
 
-st.write("---")
-
 # --- BOTTOM FINISH BUTTON ---
+st.write("---")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    if st.button("✅ I found the two products!", type="primary", use_container_width=True):
-        total_time = round(time.time() - st.session_state.start_time, 2)
+    finish_placeholder = st.empty()
+    
+    if finish_placeholder.button("✅ I found the two products!", type="primary", use_container_width=True):
+        finish_placeholder.empty() 
         
-        # THE FIX: Safely gets the ID from memory, or creates a fallback for testing
-        part_id = st.session_state.get("participant_id", int(time.time()))
-        group = st.session_state.get("experiment_group", "Minimal")
-        
-        data = {
-            "Participant_ID": part_id, 
-            "Condition": group,    
-            "Total_Time_Seconds": total_time, 
-            "Prompt_Iterations": st.session_state.iteration_count
-        }
-        
-        try:
-            supabase.table("HCI").insert(data).execute()
-            st.success("Data logged. Redirecting to final survey...")
-            time.sleep(0.5)
-            st.switch_page("pages/survey.py") 
-        except Exception as e:
-            st.error(f"Error: {e}")
+        with st.container():
+            st.info("Redirecting to final survey...")
+            
+            total_time = round(time.time() - st.session_state.start_time, 2)
+            part_id = st.session_state.get("participant_id", int(time.time()))
+            
+            group = st.session_state.get("experiment_group", "Minimal") 
+            
+            data = {
+                "Participant_ID": part_id, 
+                "Condition": group,    
+                "Total_Time_Seconds": total_time, 
+                "Prompt_Iterations": st.session_state.iteration_count
+            }
+            
+            try:
+                supabase.table("HCI").insert(data).execute()
+                time.sleep(0.5)
+                st.switch_page("pages/survey.py") 
+            except Exception as e:
+                st.error(f"Error logging data: {e}")
