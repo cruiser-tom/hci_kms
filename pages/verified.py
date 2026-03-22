@@ -131,6 +131,7 @@ def cited_interface():
                 unsafe_allow_html=True
             )
             st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")
+            st.markdown("<br>", unsafe_allow_html=True)
             st.caption("Suggested quick queries:")
             col1, col2 = st.columns(2)
             
