@@ -6,53 +6,54 @@ from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
+# --- CUSTOM CSS ---
 st.markdown(
     """
     <style>
-    /* 1. Basic Hide & Width */
-    #MainMenu, footer, header {visibility: hidden;}
+    /* 1. Hide Streamlit's default header, menu, and footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* 2. Set the exact Gemini width (approx 850px) for the main content */
     .block-container {
-        max-width: 700px !important; 
+        max-width: 700px !important;
         padding-top: 3rem !important;
         padding-bottom: 8rem !important; 
     }
+
+    /* 3. Match the chat input box width perfectly to the content */
     [data-testid="stBottomBlock"] > div {
-        max-width: 700px !important; 
+        max-width: 850px !important;
     }
 
-    /* 2. Remove the empty space Streamlit reserves for the avatar */
-    [data-testid="stChatMessageAvatar"] {
-        display: none !important;
-    }
-    [data-testid="stChatMessage"] {
-        gap: 0 !important;
-    }
-
-    /* 3. USER BUBBLE - Pure Right Alignment */
+    /* 4. User Message Styling - Dark gray bubble */
     div[data-testid="stChatMessage"]:has(.user-anchor) {
-        display: flex !important;
-        justify-content: flex-end !important;
-        background-color: transparent !important;
+        flex-direction: row-reverse;
+        background-color: transparent;
     }
     div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
-        background-color: #2b2b2b !important;
-        color: #ffffff !important;
-        padding: 12px 18px !important;
-        border-radius: 20px 20px 5px 20px !important;
-        width: fit-content !important; /* Shrinks to text size */
-        flex: none !important;
+        align-items: flex-end;
+        
+        padding: 15px 20px;
+        border-radius: 20px 20px 5px 20px;
+        
+        max-width: 80%;
     }
-
-    /* 4. AI MESSAGE - Clean Left Alignment */
+    div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
+        text-align: right;
+        margin-bottom: 0;
+    }
+    
+    /* 5. AI Message Styling - Clean and transparent */
     div[data-testid="stChatMessage"]:not(:has(.user-anchor)) div[data-testid="stChatMessageContent"] {
-        background-color: transparent !important;
-        padding: 10px 0px !important;
+        background-color: transparent;
+        padding: 10px 15px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash')
@@ -90,11 +91,19 @@ Do not use markdown tables unless the user explicitly asks for one.
 def minimalist_interface():
     
     # --- DISPLAY PAST CHAT HISTORY ---
+    # 1. Update the History Loop
     for message in st.session_state.messages:
-        with st.chat_message(message["role"], avatar=" "):
+    # Go back to standard - the CSS below will "delete" the icon visually
+        with st.chat_message(message["role"]):
             if message["role"] == "user":
                 st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.markdown(message["content"])
+
+# ... (in your active state) ...
+
+# 2. Update the AI Response logic
+
+    
 
     user_query = st.chat_input("Message AI...")
     
@@ -146,9 +155,10 @@ def minimalist_interface():
                 response = model.generate_content(full_prompt)
                 
                 # Standard default Streamlit icon, no typing delay, no tables
-                with st.chat_message("assistant", avatar=" "):
+                with st.chat_message("assistant"): 
                     st.write(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text})
+                
                     
             except ResourceExhausted:
                 st.warning("⚠️ High traffic. Please wait 15 seconds.")
@@ -156,23 +166,26 @@ def minimalist_interface():
                 st.error("System Error.")
 
 minimalist_interface()
+
+
 st.write("---")
 
-if st.button("✅ I found the two products!"):
-    total_time = round(time.time() - st.session_state.start_time, 2)
-    st.session_state.participant_id = int(time.time()) 
-    
-    data = {
-        "Participant_ID": st.session_state.participant_id, 
-        "Condition": "Minimal", 
-        "Total_Time_Seconds": total_time, 
-        "Prompt_Iterations": st.session_state.iteration_count
-    }
-    
-    try:
-        supabase.table("HCI").insert(data).execute()
-        st.success("Data logged. Redirecting to final survey...")
-        time.sleep(0.5)
-        st.switch_page("pages/survey.py") 
-    except Exception as e:
-        st.error(f"Error: {e}")
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("✅ I found the two products!", type="primary", use_container_width=True):
+        total_time = round(time.time() - st.session_state.start_time, 2)
+        
+        data = {
+            "Participant_ID": st.session_state.participant_id, 
+            "Condition": st.session_state.experiment_group,    
+            "Total_Time_Seconds": total_time, 
+            "Prompt_Iterations": st.session_state.iteration_count
+        }
+        
+        try:
+            supabase.table("HCI").insert(data).execute()
+            st.success("Data logged. Redirecting to final survey...")
+            time.sleep(0.5)
+            st.switch_page("pages/survey.py") 
+        except Exception as e:
+            st.error(f"Error: {e}")
