@@ -23,6 +23,14 @@ st.markdown(
     [data-testid="stBottomBlock"] > div {
         max-width: 700px !important; 
     }
+    /* Hide Streamlit's default avatars for the AI messages */
+    [data-testid="stChatMessageAvatar"] {
+        display: none !important;
+    }
+    [data-testid="stChatMessage"] {
+        gap: 0 !important;
+        background-color: transparent !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
