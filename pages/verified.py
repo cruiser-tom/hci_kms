@@ -5,23 +5,20 @@ import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI", layout="centered")
-# --- CUSTOM CSS FOR RIGHT-ALIGNED USER CHAT ---
 st.markdown(
     """
     <style>
-    /* Target any chat message that contains our hidden user-anchor */
-    div[data-testid="stChatMessage"]:has(.user-anchor) {
-        flex-direction: row-reverse;
+    /* Hide default Streamlit elements */
+    #MainMenu, footer, header {visibility: hidden;}
+
+    /* Lock the main width to 700px and center it */
+    .block-container {
+        max-width: 700px !important; 
+        padding-top: 3rem !important;
+        padding-bottom: 8rem !important; 
     }
-    
-    /* Align the text inside the content box to the right */
-    div[data-testid="stChatMessage"]:has(.user-anchor) div[data-testid="stChatMessageContent"] {
-        align-items: flex-end;
-    }
-    
-    /* Ensure paragraph text is right-aligned */
-    div[data-testid="stChatMessage"]:has(.user-anchor) .stMarkdown p {
-        text-align: right;
+    [data-testid="stBottomBlock"] > div {
+        max-width: 700px !important; 
     }
     </style>
     """,
