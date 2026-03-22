@@ -88,25 +88,41 @@ def scaffolded_interface():
     # --- THE SINGLE CHAT INPUT ---
     user_query = st.chat_input("Message Crane...")
     
-    # --- THE "EMPTY STATE" ---
-    if not user_query and len(st.session_state.messages) == 0:
-        st.markdown(
-            """
-            <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
-                <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
-                <p style="font-size: 1.2rem; color: #888;">Explainable AI Analysis Engine</p>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
-        st.caption("Suggested quick queries:")
-        col1, col2 = st.columns(2)
-        if col1.button("Scan all products for fake reviews", use_container_width=True):
-            user_query = "Scan all products for fake reviews"
-        if col2.button("List products with 100% bot activity", use_container_width=True):
-            user_query = "List products with 100% bot activity"
 
+   # --- THE "EMPTY STATE" ---
+    # 1. Create a wrapper that we can instantly delete
+    empty_placeholder = st.empty()
+    
+    if not user_query and len(st.session_state.messages) == 0:
+        # 2. Put the welcome text and buttons INSIDE the wrapper
+        with empty_placeholder.container():
+            st.markdown(
+                """
+                <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
+                    <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
+                    <p style="font-size: 1.2rem; color: #888;">Explainable AI Analysis Engine</p>
+                </div>
+                """, 
+                unsafe_allow_html=True
+            )
+            
+            st.caption("Suggested quick queries:")
+            col1, col2 = st.columns(2)
+            
+            # Save the clicks to variables instead of putting the logic directly inside
+            clicked_1 = col1.button("Scan all products for fake reviews", use_container_width=True)
+            clicked_2 = col2.button("List products with 100% bot activity", use_container_width=True)
+            
+        # 3. Check for the clicks OUTSIDE the 'with' block to instantly delete the wrapper
+        if clicked_1:
+            user_query = "Scan all products for fake reviews"
+            empty_placeholder.empty()
+            
+        elif clicked_2:
+            user_query = "List products with 100% bot activity"
+            empty_placeholder.empty()
+
+    
     # --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
