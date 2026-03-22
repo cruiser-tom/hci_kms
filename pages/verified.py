@@ -127,7 +127,7 @@ def cited_interface():
                 """
                 <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
                     <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
-                    <p style="font-size: 1.2rem; color: #888;">Verified AI Analysis Engine</p>
+                    <p style="font-size: 1.2rem; color: #888;">st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")</p>
                 </div>
                 """, 
                 unsafe_allow_html=True
