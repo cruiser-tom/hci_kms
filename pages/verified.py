@@ -88,7 +88,6 @@ I have analyzed the catalog and found the products you requested.
 
 def cited_interface():
     
-    st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")
     
     # --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
