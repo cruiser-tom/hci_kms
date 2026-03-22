@@ -77,12 +77,12 @@ if ui_group == "Minimal":
     m3 = st.radio("3. I felt I had to put in more mental effort to formulate useful questions compared to what a guided interface might require.", options_7pt, horizontal=True, index=None)
     m4 = st.radio("4. Despite the minimal interface, I felt in control of the direction of the conversation.", options_7pt, horizontal=True, index=None)
     
-    st.write("5. Rank the following features in order of how much you wished the interface had provided them (1 = Most wanted).")
-    col1, col2, col3, col4 = st.columns(4)
-    rank_m1 = col1.selectbox("Suggested prompts", [1, 2, 3, 4], key="rm1", index=None)
-    rank_m2 = col2.selectbox("Confidence score", [1, 2, 3, 4], key="rm2", index=None)
-    rank_m3 = col3.selectbox("Structured data table", [1, 2, 3, 4], key="rm3", index=None)
-    rank_m4 = col4.selectbox("Step-by-step explanation", [1, 2, 3, 4], key="rm4", index=None)
+   st.write("**5. Rate how much you wished the interface had provided the following features:**")
+    st.caption("Scale: 1 = Did not want it at all, 7 = Strongly wanted it")
+    rank_m1 = st.radio("Suggested prompts", options_7pt, horizontal=True, index=None, key="rm1")
+    rank_m2 = st.radio("Confidence score", options_7pt, horizontal=True, index=None, key="rm2")
+    rank_m3 = st.radio("Structured data table", options_7pt, horizontal=True, index=None, key="rm3")
+    rank_m4 = st.radio("Step-by-step explanation", options_7pt, horizontal=True, index=None, key="rm4")
     
     condition_data = {"M1": m1, "M2": m2, "M3": m3, "M4": m4, "Rank_Prompts": rank_m1, "Rank_Score": rank_m2, "Rank_Table": rank_m3, "Rank_Explanation": rank_m4}
 
@@ -93,16 +93,15 @@ elif ui_group == "Explainable":
     e4 = st.radio("4. The quick-prompt suggestion chips were helpful in guiding me toward productive questions.", options_7pt, horizontal=True, index=None)
     e5 = st.radio("5. The additional visual elements felt like they slowed me down rather than helping me.", options_7pt, horizontal=True, index=None)
     
-    st.write("6. Rank the following features in order of how much they influenced your trust (1 = Most influential).")
-    col1, col2, col3, col4, col5 = st.columns(5)
-    rank_e1 = col1.selectbox("Confidence badge", [1, 2, 3, 4, 5], key="re1", index=None)
-    rank_e2 = col2.selectbox("Status indicators", [1, 2, 3, 4, 5], key="re2", index=None)
-    rank_e3 = col3.selectbox("Progress bar", [1, 2, 3, 4, 5], key="re3", index=None)
-    rank_e4 = col4.selectbox("Suggestion chips", [1, 2, 3, 4, 5], key="re4", index=None)
-    rank_e5 = col5.selectbox("Written answer", [1, 2, 3, 4, 5], key="re5", index=None)
+   st.write("**6. Rate how much each of the following features positively influenced your trust in the AI:**")
+    st.caption("Scale: 1 = No positive influence, 7 = Strong positive influence")
+    rank_e1 = st.radio("Confidence badge", options_7pt, horizontal=True, index=None, key="re1")
+    rank_e2 = st.radio("Status indicators (Progress Bar)", options_7pt, horizontal=True, index=None, key="re2")
+    rank_e4 = st.radio("Suggestion chips", options_7pt, horizontal=True, index=None, key="re4")
+    rank_e5 = st.radio("The written text answer", options_7pt, horizontal=True, index=None, key="re5")
     
-    condition_data = {"E1": e1, "E2": e2, "E3": e3, "E4": e4, "E5": e5, "Rank_Badge": rank_e1, "Rank_Status": rank_e2, "Rank_Progress": rank_e3, "Rank_Chips": rank_e4, "Rank_Text": rank_e5}
-
+    condition_data = {"E1": e1, "E2": e2, "E3": e3, "E4": e4, "E5": e5, "Rank_Badge": rank_e1, "Rank_Status": rank_e2, "Rank_Chips": rank_e4, "Rank_Text": rank_e5}
+    
 elif ui_group == "Verified":
     v1 = st.radio("1. The formatted data tables made it easier to reach a confident decision compared to a text-only answer.", options_7pt, horizontal=True, index=None)
     v2 = st.radio("2. The AI's use of specific numbers and citations made its answers feel more credible.", options_7pt, horizontal=True, index=None)
@@ -110,12 +109,12 @@ elif ui_group == "Verified":
     v4 = st.radio("4. Having numerical evidence available reduced the number of follow-up questions I needed to ask.", options_7pt, horizontal=True, index=None)
     v5 = st.radio("5. The volume of data and numbers presented felt overwhelming at times.", options_7pt, horizontal=True, index=None)
     
-    st.write("6. Rank the following elements in order of how much they influenced your trust (1 = Most influential).")
-    col1, col2, col3, col4 = st.columns(4)
-    rank_v1 = col1.selectbox("Cited numbers", [1, 2, 3, 4], key="rv1", index=None)
-    rank_v2 = col2.selectbox("Markdown table", [1, 2, 3, 4], key="rv2", index=None)
-    rank_v3 = col3.selectbox("Verified banner", [1, 2, 3, 4], key="rv3", index=None)
-    rank_v4 = col4.selectbox("Written explanation", [1, 2, 3, 4], key="rv4", index=None)
+   st.write("**6. Rate how much each of the following elements positively influenced your trust in the AI:**")
+    st.caption("Scale: 1 = No positive influence, 7 = Strong positive influence")
+    rank_v1 = st.radio("Cited numbers within the text", options_7pt, horizontal=True, index=None, key="rv1")
+    rank_v2 = st.radio("The Markdown data table", options_7pt, horizontal=True, index=None, key="rv2")
+    rank_v3 = st.radio("The 'Data Verified' red banner", options_7pt, horizontal=True, index=None, key="rv3")
+    rank_v4 = st.radio("The written text explanation", options_7pt, horizontal=True, index=None, key="rv4")
     
     condition_data = {"V1": v1, "V2": v2, "V3": v3, "V4": v4, "V5": v5, "Rank_Numbers": rank_v1, "Rank_Table": rank_v2, "Rank_Banner": rank_v3, "Rank_Explanation": rank_v4}
 
@@ -126,12 +125,12 @@ elif ui_group == "Combined":
     cb4 = st.radio("4. The number of features in the interface felt overwhelming rather than helpful.", options_7pt, horizontal=True, index=None)
     cb5 = st.radio("5. Martha's personality influenced my trust more than the data table she provided.", options_7pt, horizontal=True, index=None)
     
-    st.write("6. Rank the following features from most to least influential on your trust (1 = Most influential).")
-    col1, col2, col3, col4 = st.columns(4)
-    rank_cb1 = col1.selectbox("Martha's persona", [1, 2, 3, 4], key="rcb1", index=None)
-    rank_cb2 = col2.selectbox("Status indicators", [1, 2, 3, 4], key="rcb2", index=None)
-    rank_cb3 = col3.selectbox("Data table", [1, 2, 3, 4], key="rcb3", index=None)
-    rank_cb4 = col4.selectbox("Suggestion chips", [1, 2, 3, 4], key="rcb4", index=None)
+    st.write("**6. Rate how much each of the following features positively influenced your trust in the AI:**")
+    st.caption("Scale: 1 = No positive influence, 7 = Strong positive influence")
+    rank_cb1 = st.radio("Martha's friendly persona", options_7pt, horizontal=True, index=None, key="rcb1")
+    rank_cb2 = st.radio("The loading status indicators", options_7pt, horizontal=True, index=None, key="rcb2")
+    rank_cb3 = st.radio("The verified data table", options_7pt, horizontal=True, index=None, key="rcb3")
+    rank_cb4 = st.radio("The suggestion chips", options_7pt, horizontal=True, index=None, key="rcb4")
     
     condition_data = {"CB1": cb1, "CB2": cb2, "CB3": cb3, "CB4": cb4, "CB5": cb5, "Rank_Persona": rank_cb1, "Rank_Status": rank_cb2, "Rank_Table": rank_cb3, "Rank_Chips": rank_cb4}
 
@@ -152,7 +151,7 @@ st.divider()
 
 # --- VALIDATION AND SUBMIT ---
 core_answers = [a1, a2, a3, a4, a5, b1, b2, b3, b4, c1, c2, c3, c4, c5]
-demo_answers = [d1, d4, d5, d6, d7] # Excluded D2 and D3 so users can leave text feedback blank if they want
+demo_answers = [d1, d4, d5, d6, d7] 
 condition_answers = list(condition_data.values())
 
 all_required_answers = core_answers + demo_answers + condition_answers
@@ -176,7 +175,7 @@ if st.button("Submit Survey & Finish", type="primary", use_container_width=True)
                 
                 st.success("✅ Survey submitted successfully! Thank you for your participation.")
                 st.balloons()
-                time.sleep(3)
+                time.sleep(2)
                 
                 st.session_state.clear() 
                 st.switch_page("index.py")
