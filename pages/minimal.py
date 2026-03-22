@@ -15,8 +15,8 @@ st.markdown(
     /* Lock the main width to 700px and center it */
     .block-container {
         max-width: 700px !important; 
-        padding-top: 3rem !important;
-        padding-bottom: 8rem !important; 
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important; 
     }
     [data-testid="stBottomBlock"] > div {
         max-width: 700px !important; 
