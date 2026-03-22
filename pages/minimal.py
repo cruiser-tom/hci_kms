@@ -93,11 +93,12 @@ def minimalist_interface():
     # --- DISPLAY PAST CHAT HISTORY ---
     # 1. Update the History Loop
     for message in st.session_state.messages:
-    # Go back to standard - the CSS below will "delete" the icon visually
         with st.chat_message(message["role"]):
             if message["role"] == "user":
+                # THIS LINE IS CRITICAL FOR THE CSS TO WORK
                 st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.markdown(message["content"])
+ 
 
 # ... (in your active state) ...
 
@@ -132,6 +133,7 @@ def minimalist_interface():
         
         # 1. Show the user message
         with st.chat_message("user"):
+            # THIS LINE IS ALSO CRITICAL
             st.markdown("<div class='user-anchor'></div>", unsafe_allow_html=True)
             st.write(user_query)
         st.session_state.messages.append({"role": "user", "content": user_query})
