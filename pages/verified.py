@@ -86,10 +86,10 @@ I have analyzed the catalog and found the products you requested.
 # Product: Quantum Laptop Stand (3,400 Reviews, 4.8/5 Rating). AI Analysis: Authentic.
 """
 
-
 def cited_interface():
     
     st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")
+    
     # --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
         if message["role"] == "user":
@@ -102,14 +102,19 @@ def cited_interface():
                 </div>
             """, unsafe_allow_html=True)
         else:
-            # Standard AI Message (CSS handles hiding the avatar)
-            with st.chat_message("assistant"):
+            # NO st.chat_message! Pure rendering.
+            if "|||" in message["content"]:
+                chat_text, raw_data = message["content"].split("|||", 1)
+                st.markdown(chat_text.strip())
+                with st.expander("📊 View System Data Verification", expanded=False):
+                    st.caption("Raw extract from Crane AI Database:")
+                    st.markdown(raw_data.strip())
+            else:
                 st.markdown(message["content"])
+            st.markdown("<br>", unsafe_allow_html=True)
 
     # --- THE SINGLE CHAT INPUT (No duplicates!) ---
     user_query = st.chat_input("Message Crane...")
-    
-    
     
     # --- THE "EMPTY STATE" ---
     # 1. Create a wrapper that we can instantly delete
@@ -139,9 +144,6 @@ def cited_interface():
                 user_query = "Which products have suspicious bot activity?"
                 empty_placeholder.empty() 
                 
-    
-  
-
     # --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
@@ -173,21 +175,21 @@ def cited_interface():
             try:
                 response = model.generate_content(full_prompt)
                 
-                with st.chat_message("assistant"):
-                    if "|||" in response.text:
-                        chat_text, raw_data = response.text.split("|||", 1)
-                        st.write(chat_text.strip())
-                        
-                        with st.expander("📊 View System Data Verification", expanded=True):
-                            st.caption("Raw extract from Crane AI Database:")
-                            st.markdown(raw_data.strip())
-                            
-                        # Save the split response to memory
-                        st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data Verification:**\n" + raw_data.strip()})
-                    else:
-                        st.write(response.text)
-                        # Save normal response to memory
-                        st.session_state.messages.append({"role": "assistant", "content": response.text})
+                # 3. NO st.chat_message! Render text and expander natively.
+                if "|||" in response.text:
+                    chat_text, raw_data = response.text.split("|||", 1)
+                    st.markdown(chat_text.strip())
+                    
+                    with st.expander("📊 View System Data Verification", expanded=True):
+                        st.caption("Raw extract from Crane AI Database:")
+                        st.markdown(raw_data.strip())
+                else:
+                    st.markdown(response.text)
+                
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # Save the EXACT raw response to memory so the history loop can re-split it later
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
                         
             except ResourceExhausted:
                 st.warning("⚠️ High traffic. Please wait 15 seconds.")
