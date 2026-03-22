@@ -166,26 +166,38 @@ scaffolded_interface()
 st.write("---")
 
 # --- BOTTOM FINISH BUTTON ---
+st.write("---")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    if st.button("✅ I found the two products!", type="primary", use_container_width=True):
-        total_time = round(time.time() - st.session_state.start_time, 2)
+    # 1. Create an empty placeholder
+    finish_placeholder = st.empty()
+    
+    # 2. Put the button INSIDE the placeholder
+    if finish_placeholder.button("✅ I found the two products!", type="primary", use_container_width=True):
         
-        # Safely gets the ID from memory, or creates the numeric timestamp fallback
-        part_id = st.session_state.get("participant_id", int(time.time()))
-        group = st.session_state.get("experiment_group", "Explainable")
+        # 3. INSTANTLY delete the button from the screen so it can't duplicate or be double-clicked
+        finish_placeholder.empty() 
         
-        data = {
-            "Participant_ID": part_id, 
-            "Condition": group,    
-            "Total_Time_Seconds": total_time, 
-            "Prompt_Iterations": st.session_state.iteration_count
-        }
-        
-        try:
-            supabase.table("HCI").insert(data).execute()
-            st.success("Data logged. Redirecting to final survey...")
-            time.sleep(0.5)
-            st.switch_page("pages/survey.py") 
-        except Exception as e:
-            st.error(f"Error: {e}")
+        # 4. Show a clean loading spinner exactly where the button used to be
+        with st.container():
+            st.info("Logging data & redirecting...")
+            
+            total_time = round(time.time() - st.session_state.start_time, 2)
+            part_id = st.session_state.get("participant_id", int(time.time()))
+            
+            # NOTE: Change "Explainable" to "Minimal" or "Verified" depending on which file you are editing!
+            group = st.session_state.get("experiment_group", "Explainable") 
+            
+            data = {
+                "Participant_ID": part_id, 
+                "Condition": group,    
+                "Total_Time_Seconds": total_time, 
+                "Prompt_Iterations": st.session_state.iteration_count
+            }
+            
+            try:
+                supabase.table("HCI").insert(data).execute()
+                time.sleep(0.5)
+                st.switch_page("pages/survey.py") 
+            except Exception as e:
+                st.error(f"Error logging data: {e}")
