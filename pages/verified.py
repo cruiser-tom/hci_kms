@@ -113,15 +113,19 @@ def cited_interface():
             unsafe_allow_html=True
         )
         
-        st.markdown("<p style='text-align: center; color: #888; margin-bottom: 10px;'>Suggested Queries:</p>", unsafe_allow_html=True)
-        col_spacer1, col1, col2, col_spacer2 = st.columns([1, 4, 4, 1])
         
-        with col1:
-            if st.button("Can you check for fake reviews?", use_container_width=True):
-                user_query = "Can you check for fake reviews?"
-        with col2:
-            if st.button("Which products have suspicious bot activity?", use_container_width=True):
-                user_query = "Which products have suspicious bot activity?"
+        st.caption("Suggested quick queries:")
+        col1, col2 = st.columns(2)
+        clicked_suggestion_1 = col1.button("Can you check for fake reviews?")
+        clicked_suggestion_2 = col2.button("Which products have suspicious bot activity?")
+        
+       # If they click the button, we force that text into the user_query variable
+        if clicked_suggestion_1:
+            user_query = "Can you check for fake reviews?"
+        elif clicked_suggestion_2:
+            user_query = "Which products have suspicious bot activity?"
+            
+  
 
     # --- THE ACTIVE STATE ---
     if user_query:
