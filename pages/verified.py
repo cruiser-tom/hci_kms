@@ -136,13 +136,18 @@ def cited_interface():
             st.caption("Suggested quick queries:")
             col1, col2 = st.columns(2)
             
-            if col1.button("Can you check for fake reviews?", use_container_width=True):
-                user_query = "Can you check for fake reviews?"
-                empty_placeholder.empty()
-                
-            if col2.button("Which products have suspicious bot activity?", use_container_width=True):
-                user_query = "Which products have suspicious bot activity?"
-                empty_placeholder.empty() 
+            # Save the clicks to variables instead of putting the logic directly inside
+            clicked_1 = col1.button("Can you check for fake reviews?", use_container_width=True)
+            clicked_2 = col2.button("Which products have suspicious bot activity?", use_container_width=True)
+            
+        # 3. Check for the clicks OUTSIDE the 'with' block to prevent the white screen crash
+        if clicked_1:
+            user_query = "Can you check for fake reviews?"
+            empty_placeholder.empty()
+            
+        elif clicked_2:
+            user_query = "Which products have suspicious bot activity?"
+            empty_placeholder.empty()
                 
     # --- THE ACTIVE STATE ---
     if user_query:
