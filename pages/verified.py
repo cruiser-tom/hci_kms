@@ -15,7 +15,7 @@ st.markdown(
     .block-container {
         max-width: 700px !important; 
         padding-top: 3rem !important;
-        padding-bottom: 8rem !important; 
+        padding-bottom: 1rem !important; 
     }
     [data-testid="stBottomBlock"] > div {
         max-width: 700px !important; 
