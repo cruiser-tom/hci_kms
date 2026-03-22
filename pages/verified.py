@@ -53,7 +53,7 @@ CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
    - Part 1 (Before |||) is your friendly conversational answer.
    - Part 2 (After |||) MUST be a 3-column table: | Product Name | Total Reviews | Rating | 
    - Part 3 is your AI analysis in bullet points.
-2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally as Martha.
+2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally.
 
 
 EXAMPLE OF THE EXACT REQUIRED FORMAT:
