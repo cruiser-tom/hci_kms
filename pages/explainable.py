@@ -163,7 +163,7 @@ def scaffolded_interface():
             st.error("System Error.")
 
 scaffolded_interface()
-st.write("---")
+
 
 # --- BOTTOM FINISH BUTTON ---
 st.write("---")
