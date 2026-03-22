@@ -147,14 +147,19 @@ minimalist_interface()
 
 st.write("---")
 
+# --- BOTTOM FINISH BUTTON ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("✅ I found the two products!", type="primary", use_container_width=True):
         total_time = round(time.time() - st.session_state.start_time, 2)
         
+        # THE FIX: Safely gets the ID from memory, or creates a fallback for testing
+        part_id = st.session_state.get("participant_id", f"TEST-{int(time.time())}")
+        group = st.session_state.get("experiment_group", "Minimal")
+        
         data = {
-            "Participant_ID": st.session_state.participant_id, 
-            "Condition": st.session_state.experiment_group,    
+            "Participant_ID": part_id, 
+            "Condition": group,    
             "Total_Time_Seconds": total_time, 
             "Prompt_Iterations": st.session_state.iteration_count
         }
