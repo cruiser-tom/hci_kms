@@ -154,7 +154,7 @@ with col2:
         total_time = round(time.time() - st.session_state.start_time, 2)
         
         # THE FIX: Safely gets the ID from memory, or creates a fallback for testing
-        part_id = st.session_state.get("participant_id", f"TEST-{int(time.time())}")
+        part_id = st.session_state.get("participant_id", int(time.time()))
         group = st.session_state.get("experiment_group", "Minimal")
         
         data = {
