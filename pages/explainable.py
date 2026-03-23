@@ -57,8 +57,8 @@ if 'messages' not in st.session_state:
 
 # ---> EXPLAINABLE SYSTEM PROMPT <---
 SYSTEM_CONTEXT = """
-You are an advanced explainable AI designed to analyze e-commerce product reviews and detect fake, AI-generated text.
-Only answer based on this provided data. Keep responses concise and analytical.
+You are an advanced explainable AI (xAI) designed to analyze e-commerce product reviews and detect fake, AI-generated text.
+Only answer based on this provided data. Keep responses analytical and explain them.
 IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT analyse. Just reply conversationally and tell it to ask something to explain.
 
 --- PRODUCT REVIEW DATASET ---
@@ -88,7 +88,7 @@ def scaffolded_interface():
         else:
             # Standard Markdown for AI (No st.chat_message)
             st.markdown(message["content"])
-            st.caption("🔒 Verified by Crane AI Trust & Safety Engine | **Confidence Score: 96.8%**")
+            st.caption("🛡️ System Confidence Score: 96.8%")
             st.markdown("<br>", unsafe_allow_html=True)
 
     # --- THE SINGLE CHAT INPUT ---
@@ -154,10 +154,10 @@ def scaffolded_interface():
                 progress_bar = st.progress(0)
                 st.write("🔍 Extracting product metadata...")
                 progress_bar.progress(30)
-                time.sleep(0.6) 
+                time.sleep(1.0) 
                 st.write("📊 Running linguistic anomaly detection models...")
                 progress_bar.progress(70)
-                time.sleep(0.7)
+                time.sleep(1.0)
                 st.write("✅ Compiling final trust and safety report...")
                 progress_bar.progress(100)
                 status.update(label="Analysis Complete", state="complete", expanded=False)
