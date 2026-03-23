@@ -6,16 +6,7 @@ from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
-# --- DEVELOPMENT BYPASS (Remove or comment out before launching study) ---
-# if 'participant_id' not in st.session_state:
-#     st.session_state.participant_id = int(time.time())
-# if 'experiment_group' not in st.session_state:
-#     st.session_state.experiment_group = "Verified"
 
-# --- STRICT SECURITY CHECK (Uncomment this when the study goes live!) ---
-if 'participant_id' not in st.session_state or 'experiment_group' not in st.session_state:
-    st.warning("⚠️ No active session found. Please start from the main page.")
-    st.stop()
 
 st.markdown(
     """
@@ -48,6 +39,19 @@ st.markdown(
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash-lite')
 
+def generate_with_retry(prompt, max_retries=3):
+    retries = 0
+    backoff_time = 2  
+    while retries < max_retries:
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except ResourceExhausted:
+            time.sleep(backoff_time)
+            retries += 1
+            backoff_time *= 2  
+    return "The system is currently processing a high volume of requests. Please wait a few seconds and try your prompt again."
+
 @st.cache_resource
 def init_connection():
     return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
@@ -63,26 +67,17 @@ if 'messages' not in st.session_state:
 
 # ---> PASTE YOUR VERIFIED/CITED SYSTEM PROMPT HERE <---
 SYSTEM_CONTEXT = """
-You are an advanced AI designed to analyze e-commerce product reviews.
+You are Crane AI, a strict data retrieval and verification system. 
+Your sole purpose is to retrieve verifiable data and present it factually. 
+Do not offer opinions, do not explain your reasoning, and do not act conversational.
 
 CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
-1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into two parts using "|||" as the delimiter.
-   - Part 1 (Before |||) is your friendly conversational answer.
-   - Part 2 (After |||) MUST be a 3-column table: | Product Name | Total Reviews | Rating | 
-   - Part 3 is your AI analysis in bullet points.
+1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into three parts using "|||" as the delimiter.
+   - Part 1 (Before the first |||) [A one-sentence factual introduction]
+   - Part 2 (After the first |||) [A Markdown table containing the raw data] | Product Name | Total Reviews | Rating | 
+   - Part 3 (After the second |||) [A strict, factual summary of what the data shows, with no extra analysis]
 2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally.
 
-
-EXAMPLE OF THE EXACT REQUIRED FORMAT:
-I have analyzed the catalog and found the products you requested.
-|||
-### Raw Data Table
-| Product Name | Total Reviews | Rating |
-|---|---|---|
-| Example Product | 1,000 | 4.0/5 |
-
-### System Verification Analysis
-* **Example Product:** WARNING. Suspicious activity detected.
 
 --- PRODUCT REVIEW DATASET ---
 # Product: AeroGlide Sneakers (4,500 Reviews, 4.9/5 Rating). AI Analysis: WARNING. 85% repetitive sentence structure. High probability of bots.
@@ -95,8 +90,8 @@ I have analyzed the catalog and found the products you requested.
 # Product: Quantum Laptop Stand (3,400 Reviews, 4.8/5 Rating). AI Analysis: Authentic.
 """
 
+
 def cited_interface():
-    
     
     # --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
@@ -110,51 +105,47 @@ def cited_interface():
                 </div>
             """, unsafe_allow_html=True)
         else:
-            # NO st.chat_message! Pure rendering.
-            if "|||" in message["content"]:
-                chat_text, raw_data = message["content"].split("|||", 1)
-                st.markdown(chat_text.strip())
-                with st.expander("📊 View System Data Verification", expanded=False):
-                    st.caption("Raw extract from Crane AI Database:")
-                    st.markdown(raw_data.strip())
-            else:
+            # Standard AI Message (CSS handles hiding the avatar)
+            with st.chat_message("assistant"):
                 st.markdown(message["content"])
-            st.markdown("<br>", unsafe_allow_html=True)
 
     # --- THE SINGLE CHAT INPUT (No duplicates!) ---
     user_query = st.chat_input("Message Crane...")
     
- # --- THE "EMPTY STATE" ---
+    
+    
+    # --- THE "EMPTY STATE" ---
+    # 1. Create a wrapper that we can instantly delete
     empty_placeholder = st.empty()
     
     if not user_query and len(st.session_state.messages) == 0:
+        # 2. Put the welcome text and buttons INSIDE the wrapper
         with empty_placeholder.container():
-            # Using standard strings to prevent the grey code-block glitch!
             st.markdown(
-                "<div style='text-align: center; padding-top: 8vh; padding-bottom: 4vh;'>"
-                "<h1 style='font-size: 4rem; font-weight: 600; margin-bottom: 15px;'>Crane <span style='color: #0068c9;'>AI</span></h1>"
-                "<div style='display: inline-block; background-color: rgba(255, 75, 75, 0.1); border: 1px solid rgba(255, 75, 75, 0.3); color: #ff4b4b; padding: 8px 18px; border-radius: 50px; font-size: 0.95rem; font-weight: 500;'>"
-                "🛡️ Data Verified System: All AI outputs are cross-referenced."
-                "</div>"
-                "</div>", 
+                """
+                <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
+                    <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
+                </div>
+                """, 
                 unsafe_allow_html=True
             )
-            
+            st.error("🛡️ Data Verified System: All AI outputs are cross-referenced.")
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
             st.caption("Suggested quick queries:")
             col1, col2 = st.columns(2)
             
-            clicked_1 = col1.button("Can you check for fake reviews?", use_container_width=True)
-            clicked_2 = col2.button("Which products have suspicious bot activity?", use_container_width=True)
-            
-        if clicked_1:
-            user_query = "Can you check for fake reviews?"
-            empty_placeholder.empty()
-            
-        elif clicked_2:
-            user_query = "Which products have suspicious bot activity?"
-            empty_placeholder.empty()
-
+            if col1.button("Can you check for fake reviews?", use_container_width=True):
+                user_query = "Can you check for fake reviews?"
+                empty_placeholder.empty()
+                
+            if col2.button("Which products have suspicious bot activity?", use_container_width=True):
+                user_query = "Which products have suspicious bot activity?"
+                empty_placeholder.empty() 
+                
     
+  
+
     # --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
@@ -169,7 +160,8 @@ def cited_interface():
         """, unsafe_allow_html=True)
         st.session_state.messages.append({"role": "user", "content": user_query})
             
-        # 2. Spinner & AI Call
+            
+# 2. Spinner & AI Call
         words_in_query = user_query.lower().split()
         task_prefixes = ["prod", "review", "bot", "fake", "susp", "scan", "analy", "data", "list", "activ"]
         is_task_query = any(word.startswith(prefix) for word in words_in_query for prefix in task_prefixes)
@@ -183,31 +175,58 @@ def cited_interface():
             chat_history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages])
             full_prompt = f"{SYSTEM_CONTEXT}\n\nChat History:\n{chat_history_text}\n\nUser Query: {user_query}"
             
+            
             try:
-                response = model.generate_content(full_prompt)
+                # 1. USE THE NEW RETRY FUNCTION
+                response_text = generate_with_retry(full_prompt)
                 
-                # 3. NO st.chat_message! Render text and expander natively.
-                if "|||" in response.text:
-                    chat_text, raw_data = response.text.split("|||", 1)
-                    st.markdown(chat_text.strip())
-                    
-                    with st.expander("📊 View System Data Verification", expanded=True):
-                        st.caption("Raw extract from Crane AI Database:")
-                        st.markdown(raw_data.strip())
-                    st.caption("🛡️ Verified Data")
-                else:
-                    st.markdown(response.text)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                
-                # Save the EXACT raw response to memory so the history loop can re-split it later
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+                with st.chat_message("assistant"):
+                    if "|||" in response_text:
+                        parts = response_text.split("|||")
                         
-            except ResourceExhausted:
-                st.warning("⚠️ High traffic. Please wait 15 seconds.")
+                        # THE NEW 3-PART SPLIT (Intro, Table, Analysis)
+                        if len(parts) >= 3:
+                            intro_text = parts[0].strip()
+                            raw_table = parts[1].strip()
+                            analysis_text = parts[2].strip()
+                            
+                            # Intro outside
+                            st.write(intro_text)
+                            
+                            # Table strictly inside (defaulted to closed for a cleaner look)
+                            with st.expander("📊 View System Data Verification", expanded=False):
+                                st.caption("Raw extract from Crane AI Database:")
+                                st.markdown(raw_table)
+                            st.caption("🛡️ Verified Data")
+                            
+                            # Analysis outside
+                            st.write(analysis_text)
+                            
+                            # Save clean version to history
+                            clean_history = f"{intro_text}\n\n**Raw Data Verification:**\n{raw_table}\n\n{analysis_text}"
+                            st.session_state.messages.append({"role": "assistant", "content": clean_history})
+                            
+                        # THE FALLBACK (In case the AI only uses 1 delimiter)
+                        elif len(parts) == 2:
+                            chat_text, raw_data = parts
+                            st.write(chat_text.strip())
+                            
+                            with st.expander("📊 View System Data Verification", expanded=True):
+                                st.caption("Raw extract from Crane AI Database:")
+                                st.markdown(raw_data.strip())
+                            st.caption("🛡️ Verified Data")
+                            
+                            st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data Verification:**\n" + raw_data.strip()})
+                            
+                    # IF NO DELIMITERS ARE USED (Standard chat)
+                    else:
+                        st.write(response_text)
+                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+                        
             except Exception as e:
                 st.error("System Error.")
-
+                
+           
 cited_interface()
 
 # --- BOTTOM FINISH BUTTON ---
