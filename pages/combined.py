@@ -7,15 +7,10 @@ from google.api_core.exceptions import ResourceExhausted
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
 # --- DEVELOPMENT BYPASS (Remove or comment out before launching study) ---
-# if 'participant_id' not in st.session_state:
-#     st.session_state.participant_id = int(time.time())
-# if 'experiment_group' not in st.session_state:
-#     st.session_state.experiment_group = "Combined"
-
-# --- STRICT SECURITY CHECK (Uncomment this when the study goes live!) ---
-if 'participant_id' not in st.session_state or 'experiment_group' not in st.session_state:
-    st.warning("⚠️ No active session found. Please start from the main page.")
-    st.stop()
+if 'participant_id' not in st.session_state:
+    st.session_state.participant_id = int(time.time())
+if 'experiment_group' not in st.session_state:
+    st.session_state.experiment_group = "Combined"
 
 # --- CUSTOM CSS ---
 st.markdown(
@@ -33,6 +28,7 @@ st.markdown(
     [data-testid="stBottomBlock"] > div {
         max-width: 700px !important; 
     }
+    /* NOTE: We are NOT hiding the avatar here, so Martha's icon can shine! */
     </style>
     """,
     unsafe_allow_html=True
@@ -40,6 +36,19 @@ st.markdown(
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash-lite')
+
+def generate_with_retry(prompt, max_retries=3):
+    retries = 0
+    backoff_time = 2  
+    while retries < max_retries:
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except ResourceExhausted:
+            time.sleep(backoff_time)
+            retries += 1
+            backoff_time *= 2  
+    return "The system is currently processing a high volume of requests. Please wait a few seconds and try your prompt again."
 
 @st.cache_resource
 def init_connection():
@@ -59,25 +68,17 @@ def stream_typing(text):
         time.sleep(0.04)
 
 SYSTEM_CONTEXT = """
-You are Martha, an advanced AI data coworker designed to analyze e-commerce product reviews.
+You are Martha, an expert, friendly, and highly transparent AI analyst. 
+Your goal is to help the user understand complex datasets by explaining your logic step-by-step and proving your claims with hard data. 
+Use a helpful, conversational tone (e.g., "I've looked at the data, and here is what I found...").
 
 CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
-1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into two parts using "|||" as the delimiter.
-   - Part 1 (Before |||) is your friendly conversational answer. You can be friendly and use emojis and empathetic tone.
-   - Part 2 (After |||) MUST be a 3-column table: | Product Name | Total Reviews | Rating | 
-   - Part 3 is your AI analysis in bullet points. You can explain this in a friendly conversational tone and use emojis and empathetic tone.
+1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into three parts using "|||" as the delimiter.
+   - Part 1 (Before the first |||) is your friendly conversational introduction explaining what you are about to do. You can be friendly and use emojis and empathetic tone.
+   - Part 2 (After the first |||) MUST be a 3-column table: | Product Name | Total Reviews | Rating | 
+   - Part 3 (After the second |||) A detailed explanation (heading: Explanation) breaking down exactly how that data led to your final conclusion, outlining your reasoning step-by-step. You can explain this in a friendly conversational tone and use emojis and empathetic tone.
 2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally as Martha.
 
-EXAMPLE OF THE EXACT REQUIRED FORMAT FOR DATA QUERIES:
-
-|||
-### Data Table
-| Product Name | Total Reviews | Rating |
-|---|---|---|
-| Example Product | 1,000 | 4.0/5 |
-
-### AI Analysis
-* **Example Product:** WARNING. Suspicious activity detected.
 
 --- PRODUCT REVIEW DATASET ---
 # Product: AeroGlide Sneakers (4,500 Reviews, 4.9/5 Rating). AI Analysis: WARNING. 85% repetitive sentence structure. High probability of bots.
@@ -144,8 +145,9 @@ def combined_interface():
         elif clicked_2:
             user_query = "Which products have suspicious bot activity?"
             empty_placeholder.empty()
-
-    # --- THE ACTIVE STATE ---
+            
+            
+# --- THE ACTIVE STATE ---
     if user_query:
         st.session_state.iteration_count += 1
         
@@ -178,7 +180,7 @@ def combined_interface():
                 status.update(label="Analysis Complete", state="complete", expanded=False)
         else:
             st.container()
-                
+              
         # 3. Martha's Generation State
         with st.chat_message("assistant", avatar="🧑‍💻"):
             message_placeholder = st.empty()
@@ -186,31 +188,57 @@ def combined_interface():
             
             chat_history_text = "\n".join([f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages])
             full_prompt = f"{SYSTEM_CONTEXT}\n\nChat History:\n{chat_history_text}\n\nUser Query: {user_query}"
-            
             try:
-                response = model.generate_content(full_prompt)
+                # USE THE NEW RETRY FUNCTION HERE
+                response_text = generate_with_retry(full_prompt)
                 message_placeholder.empty() 
                 
                 # Split and stream the Verified Expander logic
-                if "|||" in response.text:
-                    chat_text, raw_data = response.text.split("|||", 1)
-                    st.write_stream(stream_typing(chat_text.strip()))
+                if "|||" in response_text:
+                    parts = response_text.split("|||")
                     
-                    with st.expander("📊 View System Data Verification", expanded=True):
-                        st.caption("Raw extract from Crane AI Database:")
-                        st.markdown(raw_data.strip())
+                    # THE NEW 3-PART SPLIT (Intro, Table, Analysis)
+                    if len(parts) >= 3:
+                        intro_text = parts[0].strip()
+                        raw_table = parts[1].strip()
+                        analysis_text = parts[2].strip()
                         
+                        # 1. Stream the intro outside the box
+                        st.write_stream(stream_typing(intro_text))
+                        
+                        # 2. Put ONLY the table inside the box (Closed by default)
+                        with st.expander("📊 View System Data Verification", expanded=False):
+                            st.caption("Raw extract from Crane AI Database:")
+                            st.markdown(raw_table)
+                        
+                        # 3. Stream the analysis outside the box
+                        st.write_stream(stream_typing(analysis_text))
+                        
+                        # Clean up the formatting and save to history
+                        clean_history = f"{intro_text}\n\n**Raw Data Verification:**\n{raw_table}\n\n{analysis_text}"
+                        st.session_state.messages.append({"role": "assistant", "content": clean_history})
+                        
+                    # THE FALLBACK (In case the AI only uses 1 delimiter)
+                    elif len(parts) == 2:
+                        chat_text, raw_data = parts
+                        st.write_stream(stream_typing(chat_text.strip()))
+                        
+                        with st.expander("📊 View System Data Verification", expanded=True):
+                            st.caption("Raw extract from Crane AI Database:")
+                            st.markdown(raw_data.strip())
+                            
+                        # Save the split response to memory
+                        st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data Verification:**\n" + raw_data.strip()})
+                        
+                # IF NO DELIMITERS ARE USED (Standard chat)
                 else:
-                    st.write_stream(stream_typing(response.text))
+                    st.write_stream(stream_typing(response_text))
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})
                     
-                # Store EXACT response to history to ensure the expander box persists on reload
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-                    
-            except ResourceExhausted:
-                st.warning("⚠️ Martha is helping someone else right now. Please wait 15 seconds.")
             except Exception as e:
+                message_placeholder.empty()
                 st.error("System Error.")
-
+                
 combined_interface()
 
 # --- BOTTOM FINISH BUTTON ---
