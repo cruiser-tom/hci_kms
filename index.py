@@ -20,7 +20,7 @@ st.markdown(
     <div style="text-align: center; padding-top: 4vh; padding-bottom: 2vh;">
         <h1 style="font-size: 3.5rem; font-weight: 600; margin-bottom: 0px;">Crane <span style="color: #0068c9;">AI</span></h1>
         <p style="font-size: 1.2rem; color: #888;">Human-Computer Interaction Study</p>
-        <p style='font-size: 1.2rem; color: #444;'>
+        <p style='font-size: 1.2rem; color: #888;'>
         <b>Welcome to the Crane AI Simulation.</b> You are participating in an academic study exploring how users interact with different Generative AI system designs.
         </p>
     </div>
