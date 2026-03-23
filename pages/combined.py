@@ -7,10 +7,15 @@ from google.api_core.exceptions import ResourceExhausted
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
 # --- DEVELOPMENT BYPASS (Remove or comment out before launching study) ---
-if 'participant_id' not in st.session_state:
-    st.session_state.participant_id = int(time.time())
-if 'experiment_group' not in st.session_state:
-    st.session_state.experiment_group = "Combined"
+# if 'participant_id' not in st.session_state:
+#     st.session_state.participant_id = int(time.time())
+# if 'experiment_group' not in st.session_state:
+#     st.session_state.experiment_group = "Combined"
+
+# --- STRICT SECURITY CHECK (Uncomment this when the study goes live!) ---
+if 'participant_id' not in st.session_state or 'experiment_group' not in st.session_state:
+    st.warning("⚠️ No active session found. Please start from the main page.")
+    st.stop()
 
 # --- CUSTOM CSS ---
 st.markdown(
