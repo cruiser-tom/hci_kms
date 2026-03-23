@@ -92,7 +92,7 @@ elif ui_group == "Explainable":
     e2 = st.radio("2. The Confidence Score badge influenced how much I relied on the AI's final answer.", options_7pt, horizontal=True, index=None)
     e3 = st.radio("3. The progress bar helped me feel oriented during the task.", options_7pt, horizontal=True, index=None)
     e4 = st.radio("4. The quick-prompt suggestion chips were helpful in guiding me toward productive questions.", options_7pt, horizontal=True, index=None)
-    e5 = st.radio("5. The additional visual elements felt like they slowed me down rather than helping me.", options_7pt, horizontal=True, index=None)
+    e5 = st.radio("5. These additional visual elements felt like they slowed me down rather than helping me.", options_7pt, horizontal=True, index=None)
     
     st.write("**6. Rate how much each of the following features positively influenced your trust in the AI:**")
     st.caption("Scale: 1 = No positive influence, 7 = Strong positive influence")
