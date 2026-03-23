@@ -46,7 +46,7 @@ st.markdown(
 )
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash-lite-preview-09-2025')
 
 @st.cache_resource
 def init_connection():
