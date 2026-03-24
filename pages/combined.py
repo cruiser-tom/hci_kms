@@ -177,7 +177,7 @@ def combined_interface():
                 time.sleep(1.0)
                 st.write("✅ Compiling final trust and safety report...")
                 progress_bar.progress(100)
-                status.update(label="Analysis Complete", state="complete", expanded=False)
+                status.update(label="Analysis Complete", state="complete", expanded=True)
         else:
             st.container()
               
