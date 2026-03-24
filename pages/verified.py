@@ -6,7 +6,6 @@ from google.api_core.exceptions import ResourceExhausted
 
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
-
 st.markdown(
     """
     <style>
