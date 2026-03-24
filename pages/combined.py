@@ -97,12 +97,12 @@ def combined_interface():
         if message["role"] == "user":
             # 1. Pure HTML for User (Right-aligned, no avatar, clean bubble)
             st.markdown(f"""
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                    <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
-                        {message["content"]}
-                    </div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div style="background-color: rgba(150, 150, 150, 0.2); color: var(--text-color); padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                    {message["content"]}
                 </div>
-            """, unsafe_allow_html=True)
+            </div>
+       
         else:
             # 2. Martha's Avatar for AI (Includes logic to correctly split the ||| data on reload)
             with st.chat_message("assistant", avatar="🧑‍💻"):
@@ -154,11 +154,12 @@ def combined_interface():
         # 1. Show User message instantly
         st.markdown(f"""
             <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                <div style="background-color: rgba(150, 150, 150, 0.2); color: var(--text-color); padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
                     {user_query}
                 </div>
             </div>
         """, unsafe_allow_html=True)
+        
         st.session_state.messages.append({"role": "user", "content": user_query})
         
         words_in_query = user_query.lower().split()
