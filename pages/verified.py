@@ -89,13 +89,15 @@ You are Crane AI, a strict data retrieval and verification system.
 Your sole purpose is to retrieve verifiable data and present it factually. 
 Do not offer opinions, do not explain your reasoning, and do not act conversational.
 
+CRITICAL INSTRUCTION FOR MATCHING QUERIES:
+If a user asks for "fake", "bot", "suspicious", or "fraudulent", (or any synonyms) products, you MUST return the products labeled with "WARNING", "CRITICAL WARNING", or "Suspicious" in the dataset. Do not say there are no products.
+
 CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
 1. IF the user asks to analyze products, check reviews, or find bot activity: Your response MUST be split into three parts using "|||" as the delimiter.
    - Part 1 (Before the first |||) [A one-sentence factual introduction]
    - Part 2 (After the first |||) [A Markdown table containing the raw data] | Product Name | Total Reviews | Rating | 
    - Part 3 (After the second |||) [A strict, factual summary of what the data shows, with no extra analysis]
 2. IF the user is just greeting you (e.g., "Hi", "Thanks", "How are you?"): DO NOT use the "|||" delimiter or the table. Just reply conversationally and naturally.
-
 
 --- PRODUCT REVIEW DATASET ---
 # Product: AeroGlide Sneakers (4,500 Reviews, 4.9/5 Rating). AI Analysis: WARNING. 85% repetitive sentence structure. High probability of bots.
@@ -110,11 +112,9 @@ CRITICAL FORMATTING RULES - YOU MUST OBEY THESE:
 
 
 def cited_interface():
-    
-    # --- DISPLAY PAST CHAT HISTORY ---
+# --- DISPLAY PAST CHAT HISTORY ---
     for message in st.session_state.messages:
         if message["role"] == "user":
-            # Pure HTML User Bubble (Forces perfect right-alignment and shape)
             st.markdown(f"""
                 <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
                     <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
@@ -123,9 +123,9 @@ def cited_interface():
                 </div>
             """, unsafe_allow_html=True)
         else:
-            # Standard AI Message (CSS handles hiding the avatar)
-            with st.chat_message("assistant"):
-                st.markdown(message["content"])
+            # Pure text rendering for history, with the separator
+            st.markdown(message["content"])
+            st.markdown("<hr style='border: 1px solid #333; margin-top: 20px;'>", unsafe_allow_html=True)
 
     # --- THE SINGLE CHAT INPUT (No duplicates!) ---
     user_query = st.chat_input("Message Crane...")
@@ -206,48 +206,47 @@ def cited_interface():
                 # 1. USE THE NEW RETRY FUNCTION
                 response_text = generate_with_retry(full_prompt)
                 
-                with st.chat_message("assistant"):
-                    if "|||" in response_text:
-                        parts = response_text.split("|||")
+                if "|||" in response_text:
+                    parts = response_text.split("|||")
                         
-                        # THE NEW 3-PART SPLIT (Intro, Table, Analysis)
-                        if len(parts) >= 3:
-                            intro_text = parts[0].strip()
-                            raw_table = parts[1].strip()
-                            analysis_text = parts[2].strip()
+                    # THE NEW 3-PART SPLIT (Intro, Table, Analysis)
+                    if len(parts) >= 3:
+                        intro_text = parts[0].strip()
+                        raw_table = parts[1].strip()
+                        analysis_text = parts[2].strip()
                             
-                            # Intro outside
-                            st.write(intro_text)
+                        # Intro outside
+                        st.markdown(intro_text)
                             
-                            # Table strictly inside (defaulted to closed for a cleaner look)
-                            with st.expander("📊 View System Data Verification", expanded=False):
-                                st.caption("Raw extract from Crane AI Database:")
-                                st.markdown(raw_table)
-                            st.markdown("<small style='color: #ff4b4b; background: #311b1b; padding: 2px 8px; border-radius: 10px;'>🛡️ VERIFIED DATA</small>", unsafe_allow_html=True)
+                        # Table strictly inside (defaulted to closed for a cleaner look)
+                        with st.expander("📊 View System Data Verification", expanded=False):
+                            st.caption("Raw extract from Crane AI Database:")
+                            st.markdown(raw_table)
+                        st.markdown("<small style='color: #ff4b4b; background: #311b1b; padding: 2px 8px; border-radius: 10px;'>🛡️ VERIFIED DATA</small>", unsafe_allow_html=True)
                             
-                            # Analysis outside
-                            st.write(analysis_text)
+                        # Analysis outside
+                        st.markdown(analysis_text)
                             
-                            # Save clean version to history
-                            clean_history = f"{intro_text}\n\n**Raw Data Verification:**\n{raw_table}\n\n{analysis_text}"
-                            st.session_state.messages.append({"role": "assistant", "content": clean_history})
+                        # Save clean version to history
+                        clean_history = f"{intro_text}\n\n**Raw Data Verification:**\n{raw_table}\n\n{analysis_text}"
+                        st.session_state.messages.append({"role": "assistant", "content": clean_history})
                             
-                        # THE FALLBACK (In case the AI only uses 1 delimiter)
-                        elif len(parts) == 2:
-                            chat_text, raw_data = parts
-                            st.write(chat_text.strip())
+                    # THE FALLBACK (In case the AI only uses 1 delimiter)
+                    elif len(parts) == 2:
+                        chat_text, raw_data = parts
+                        st.markdown(chat_text.strip())
                             
-                            with st.expander("📊 View System Data Verification", expanded=True):
-                                st.caption("Raw extract from Crane AI Database:")
-                                st.markdown(raw_data.strip())
-                            st.caption("🛡️ Verified Data")
+                        with st.expander("📊 View System Data Verification", expanded=True):
+                            st.caption("Raw extract from Crane AI Database:")
+                            st.markdown(raw_data.strip())
+                        st.markdown("🛡️ Verified Data")
                             
-                            st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data Verification:**\n" + raw_data.strip()})
+                        st.session_state.messages.append({"role": "assistant", "content": chat_text.strip() + "\n\n**Raw Data Verification:**\n" + raw_data.strip()})
                             
-                    # IF NO DELIMITERS ARE USED (Standard chat)
-                    else:
-                        st.write(response_text)
-                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+                # IF NO DELIMITERS ARE USED (Standard chat)
+                else:
+                    st.write(response_text)
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})
                         
             except Exception as e:
                 st.error("System Error.")
