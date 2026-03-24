@@ -30,7 +30,18 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
+st.markdown("""
+    <style>
+    /* Make the Scale subheader smaller and subtle */
+    .scale-instruction {
+        font-size: 0.95rem !important;
+        color: #888888 !important;
+        margin-top: -10px !important;
+        margin-bottom: 20px !important;
+        font-weight: 400 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 @st.cache_resource
 def init_connection():
     return create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
@@ -57,7 +68,7 @@ st.divider()
 
 # --- PART 1: COMMON CORE ---
 st.header("Part 1: Core System Evaluation")
-st.subheader("Scale: 1 = Strongly Disagree, 7 = Strongly Agree")
+st.markdown('<p class="scale-instruction">Scale: 1 = Strongly Disagree, 7 = Strongly Agree</p>', unsafe_allow_html=True)
 
 st.subheader("Section A - Trust in the AI System")
 a1 = st.radio("1. I trusted the AI's recommendations to make my final decision.", options_7pt, horizontal=True, index=None)
