@@ -125,7 +125,6 @@ def cited_interface():
         else:
             # Pure text rendering for history, with the separator
             st.markdown(message["content"])
-            st.markdown("<hr style='border: 1px solid #333; margin-top: 20px;'>", unsafe_allow_html=True)
 
     # --- THE SINGLE CHAT INPUT (No duplicates!) ---
     user_query = st.chat_input("Message Crane...")
