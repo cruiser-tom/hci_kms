@@ -80,12 +80,13 @@ def minimalist_interface():
         if message["role"] == "user":
             # Pure HTML for the User: Guarantees right-alignment and perfect bubble shape
             st.markdown(f"""
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                    <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
-                        {message["content"]}
-                    </div>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                <div style="background-color: rgba(150, 150, 150, 0.2); color: var(--text-color); padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                    {message["content"]}
                 </div>
-            """, unsafe_allow_html=True)
+            </div>
+        """, unsafe_allow_html=True)
+           
         else:
             # Standard Markdown for AI: Flush left, transparent, no avatars
             st.markdown(message["content"])
@@ -134,11 +135,12 @@ def minimalist_interface():
         # Show User message
         st.markdown(f"""
             <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                <div style="background-color: rgba(150, 150, 150, 0.2); color: var(--text-color); padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
                     {user_query}
                 </div>
             </div>
         """, unsafe_allow_html=True)
+        
         # Prevent duplicate appends from button clicks
         if not st.session_state.messages or st.session_state.messages[-1]["content"] != user_query:
             st.session_state.messages.append({"role": "user", "content": user_query})
