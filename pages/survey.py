@@ -41,15 +41,26 @@ if 'participant_id' not in st.session_state or 'experiment_group' not in st.sess
 ui_group = st.session_state.experiment_group
 options_7pt = [1, 2, 3, 4, 5, 6, 7]
 
+# 1. Pull the page container up to the top
+st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 2rem !important; 
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# 2. Your existing Title block (slightly adjusted for tighter spacing)
 st.markdown(
     """
-    <div style="text-align: center; padding-bottom: 2vh;">
-        <h1 style="font-size: 2.5rem; font-weight: 600; margin-bottom: 0;">Post-Experiment Survey</h1>
-        <p style="font-size: 1.1rem; color: #888;">There are no right or wrong answers. Honest responses are essential to the research.</p>
+    <div style="text-align: center; margin-top: -10px;">
+        <h1 style="font-size: 2.5rem; font-weight: 600; margin-bottom: 5px;">Post-Experiment Survey</h1>
+        <p style="font-size: 1.1rem; color: #888; margin-top: 0;">There are no right or wrong answers. Honest responses are essential to the research.</p>
     </div>
     """, 
     unsafe_allow_html=True
 )
+
 st.divider()
 st.markdown("""
     <style>
