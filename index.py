@@ -19,7 +19,7 @@ st.markdown(
     """
     <div style="text-align: center; padding-top: 4vh; padding-bottom: 2vh;">
         <h1 style="font-size: 3.5rem; font-weight: 600; margin-bottom: 0px;">Crane <span style="color: #0068c9;">AI</span></h1>
-        <p style="font-size: 1.2rem; color: #888; margin-bottom: 30px;">Human-Computer Interaction Study</p>
+        <p style="font-size: 1.2rem; color: #888; margin-bottom: 15px;">Human-Computer Interaction Study</p>
     </div>
     <div style="text-align: left; margin: 0 auto;">
         <p style="font-size: 1.15rem; color: #555555; line-height: 1.6;">
