@@ -57,7 +57,7 @@ st.divider()
 
 # --- PART 1: COMMON CORE ---
 st.header("Part 1: Core System Evaluation")
-st.caption("Scale: 1 = Strongly Disagree, 7 = Strongly Agree")
+st.subheader("Scale: 1 = Strongly Disagree, 7 = Strongly Agree")
 
 st.subheader("Section A - Trust in the AI System")
 a1 = st.radio("1. I trusted the AI's recommendations to make my final decision.", options_7pt, horizontal=True, index=None)
