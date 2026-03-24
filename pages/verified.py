@@ -7,34 +7,53 @@ from google.api_core.exceptions import ResourceExhausted
 st.set_page_config(page_title="Crane AI", layout="centered", initial_sidebar_state="collapsed")
 
 
-
 st.markdown(
     """
     <style>
-    /* Hide default Streamlit elements */
-    #MainMenu, footer, header {visibility: hidden;}
+    /* 1. Hide default Streamlit elements */
+    #MainMenu, footer, header {visibility: hidden !important;}
 
-    /* Lock the main width to 700px and center it */
+    /* 2. Lock the main width and center it */
     .block-container {
         max-width: 700px !important; 
         padding-top: 1rem !important;
         padding-bottom: 1rem !important; 
     }
-    [data-testid="stBottomBlock"] > div {
-        max-width: 700px !important; 
-    }
-    /* Hide Streamlit's default avatars for the AI messages */
+
+    /* 3. THE AVATAR HIDER - THIS REMOVES THE ROBOT ICON */
     [data-testid="stChatMessageAvatar"] {
         display: none !important;
     }
+    
+    /* 4. REMOVE THE GAP - THIS PUSHES THE TEXT FLUSH LEFT */
     [data-testid="stChatMessage"] {
-        gap: 0 !important;
+        padding-left: 0 !important;
+        margin-left: 0 !important;
         background-color: transparent !important;
+        gap: 0 !important;
+    }
+    
+    [data-testid="stChatMessageContent"] {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* 5. Fix the User Bubble (so it doesn't look like a tiny pill) */
+    .user-bubble {
+        background-color: #2b2b2b; 
+        color: #ffffff; 
+        padding: 12px 20px; 
+        border-radius: 20px 20px 5px 20px; 
+        max-width: 75%; 
+        width: fit-content; 
+        line-height: 1.5;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
+
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash-lite')
@@ -126,10 +145,9 @@ def cited_interface():
                 <div style="text-align: center; padding-top: 8vh; padding-bottom: 4vh;">
                     <h1 style="font-size: 4rem; font-weight: 600; margin-bottom: 0;">Crane <span style="color: #0068c9;">AI</span></h1>
                 </div>
-     
-                <div style=" background-color: #2b1a1a; color: #ff7676; padding: 8px 24px; border-radius: 40px; 
-                    border: 1px solid #632a2a; margin: 0 auto 30px auto; display: flex; align-items: center; justify-content: center;
-                    gap: 8px; text-align: center; width: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.2); ">
+                <div style=" background-color: #2b1a1a; color: #ff4b4b; padding: 18px 30px; border-radius: 50px; 
+                    border: 1px solid #632a2a; margin-bottom: 30px; display: flex; align-items: center; justify-content: center;
+                    gap: 12px; text-align: center; ">
                     <span style="font-size: 1.3rem;">🛡️</span>
                     <span style="font-weight: 500; font-size: 1rem; letter-spacing: 0.3px;">
                     Data Verified System: All AI outputs are cross-referenced with internal databases.
@@ -162,7 +180,7 @@ def cited_interface():
         # 1. Show the user message instantly via HTML
         st.markdown(f"""
             <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                <div style="background-color: #2b2b2b; color: #ffffff; padding: 12px 18px; border-radius: 20px 20px 5px 20px; max-width: 80%; width: fit-content; line-height: 1.5;">
+                <div class="user-bubble">
                     {user_query}
                 </div>
             </div>
