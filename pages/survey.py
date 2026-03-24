@@ -23,7 +23,7 @@ st.markdown("""
         font-size: 0.95rem !important;
         color: #888888 !important;
         margin-top: -10px !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 10px !important;
         font-weight: 400 !important;
     }
     </style>
@@ -73,7 +73,7 @@ st.markdown("""
 
     /* Add more space between questions so it doesn't look crowded */
     [data-testid="stVerticalBlock"] > div {
-        margin-bottom: 15px !important;
+        margin-bottom: 10px !important;
     }
     </style>
 """, unsafe_allow_html=True)
