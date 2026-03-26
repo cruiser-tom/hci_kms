@@ -218,13 +218,15 @@ if st.button("Submit Survey & Finish", type="primary", use_container_width=True)
             }
             
             try:
+                # 1. Save data to Supabase
                 supabase.table("HCI").update({"Survey_Data": full_survey_payload}).eq("Participant_ID", st.session_state.participant_id).execute()
                 
-                st.success("✅ Survey submitted successfully! Thank you for your participation.")
-                st.balloons()
-                time.sleep(2)
-                
+                # 2. Clear the session state so they can't take the study twice
                 st.session_state.clear() 
-                st.switch_page("index.py")
+                
+                # 3. Instantly redirect them to your new success page
+                st.switch_page("success.py") 
+                # Note: If your success.py is inside a 'pages' folder, use st.switch_page("pages/success.py") instead
+                
             except Exception as e:
                 st.error(f"Error saving data: {e}")
