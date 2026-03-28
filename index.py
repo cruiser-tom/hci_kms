@@ -56,9 +56,9 @@ def assign_user_condition(current_counts):
 # NOTE: In your live app, you need to write a quick function here to read these 
 # numbers directly from your CSV or database so they update in real-time.
 live_database_counts = {
-    'Minimal': 47,
+    'Minimal': 48,
     'Explainable': 36,
-    'Verified': 27,
+    'Verified': 44,
     'Combined': 42
 }
 
